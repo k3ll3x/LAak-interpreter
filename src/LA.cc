@@ -17,17 +17,6 @@ VectorXd** LA::check_vector(lua_State* L, int idx){
     return (VectorXd**)ud;
 }
 
-// int LA::new_vector(lua_State* L){
-//     int n = luaL_checkinteger(L, 1);
-//     VectorXd* v = (VectorXd*)lua_newuserdata(L, n);
-//     for(int i = 0; i < n; i++){
-//         (*v)[i] = i;
-//     }
-//     luaL_getmetatable(L, "vector");
-//     lua_setmetatable(L, -2);
-//     return 1;
-// }
-
 int LA::new_vector(lua_State* L){
     int n = lua_gettop(L);
     if(n >= 1){
@@ -67,16 +56,48 @@ int LA::new_vector(lua_State* L){
 }
 
 int LA::add_vectors(lua_State* L){
-    std::cout << "add vectors methods\n";
     VectorXd** a = check_vector(L);
     VectorXd** b = check_vector(L, 2);
 
-    // std::cout << *(*a) << '\n';
-    // std::cout << *(*b) << '\n';
+    if((*(*a)).size() != (*(*b)).size())
+        return luaL_error(L, "Vector sizes are not the same");
 
     VectorXd** v = (VectorXd**)lua_newuserdata(L, sizeof(VectorXd*));
-    std::cout << "Debug\n";
+
     *v = new VectorXd((*(*a)) + (*(*b)));
+
+    luaL_getmetatable(L, "vector");
+    lua_setmetatable(L, -2);
+    return 1;
+}
+
+int LA::sub_vectors(lua_State* L){
+    VectorXd** a = check_vector(L);
+    VectorXd** b = check_vector(L, 2);
+
+    if((*(*a)).size() != (*(*b)).size())
+            return luaL_error(L, "Vector sizes are not the same");
+
+    VectorXd** v = (VectorXd**)lua_newuserdata(L, sizeof(VectorXd*));
+
+    *v = new VectorXd((*(*a)) - (*(*b)));
+    luaL_getmetatable(L, "vector");
+    lua_setmetatable(L, -2);
+    return 1;
+}
+
+int LA::mul_vector(lua_State* L){
+    double a;
+    VectorXd** v;
+    if(lua_isnumber(L,1)){
+        a = luaL_checknumber(L, 1);
+        v = check_vector(L, 2);
+    }else{
+        a = luaL_checknumber(L, 2);
+        v = check_vector(L);
+    }
+    VectorXd** r = (VectorXd**)lua_newuserdata(L, sizeof(VectorXd*));
+    *r = new VectorXd(a * (*(*v)));
     luaL_getmetatable(L, "vector");
     lua_setmetatable(L, -2);
     return 1;

@@ -31,11 +31,15 @@ private:
     static VectorXd** check_vector(lua_State* L, int idx=1);
     static int new_vector(lua_State* L);
     static int add_vectors(lua_State* L);
+    static int sub_vectors(lua_State* L);
+    static int mul_vector(lua_State* L);
     static int vector_tostring(lua_State* L);
 
     inline static const luaL_Reg vector_methods[] = {
         { "new", new_vector },
         { "__add", add_vectors },
+        { "__sub", sub_vectors },
+        { "__mul", mul_vector },
         { "__tostring", vector_tostring },
         { NULL, NULL }
     };
