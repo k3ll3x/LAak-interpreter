@@ -2,12 +2,11 @@
 
 void LA::register_vector(lua_State* L){
     luaL_newmetatable(L, "vector");
-    lua_pushstring(L, "__index");
-    lua_pushvalue(L, -2);
+    lua_pushcfunction(L, get_vecelem);
+    lua_setfield(L, -2, "__index");
+    lua_pushcfunction(L, set_vecelem);
+    lua_setfield(L, -2, "__newindex");
     luaL_setfuncs(L, vector_methods, 0);
-    lua_settable(L, -3);
-    
-    luaL_getmetatable(L, "vector");
     lua_setglobal(L, "vector");
 }
 
@@ -15,6 +14,24 @@ VectorXd** LA::check_vector(lua_State* L, int idx){
     void* ud = luaL_checkudata(L, idx, "vector");
     luaL_argcheck(L, ud != NULL, idx, "vector expected");
     return (VectorXd**)ud;
+}
+
+double* LA::get_element(lua_State* L){
+    VectorXd** v = check_vector(L);
+    int index = luaL_checkinteger(L, 2);
+    luaL_argcheck(L, 0 <= index && index < (*(*v)).size(), 2, "index out of range");
+    return &(*(*v))[index];
+}
+
+int LA::get_vecelem(lua_State* L){
+    lua_pushnumber(L, *get_element(L));
+    return 1;
+}
+
+int LA::set_vecelem(lua_State* L){
+    double newval = luaL_checknumber(L, 3);
+    *get_element(L) = newval;
+    return 0;
 }
 
 int LA::new_vector(lua_State* L){

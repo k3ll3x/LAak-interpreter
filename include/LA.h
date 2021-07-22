@@ -29,7 +29,10 @@ public:
     static void register_vector(lua_State* L);
 private:
     static VectorXd** check_vector(lua_State* L, int idx=1);
+    static double* get_element(lua_State* L);
     static int new_vector(lua_State* L);
+    static int get_vecelem(lua_State* L);
+    static int set_vecelem(lua_State* L);
     static int add_vectors(lua_State* L);
     static int sub_vectors(lua_State* L);
     static int mul_vector(lua_State* L);
