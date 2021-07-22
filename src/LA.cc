@@ -39,7 +39,7 @@ int LA::new_vector(lua_State* L){
     if(n >= 1){
         VectorXd** v = (VectorXd**)lua_newuserdata(L, sizeof(VectorXd*));
         if(n == 1){
-            //create vector with size as argument
+            //create vector with argument as size
             if(lua_isnumber(L,1)){
                 int size = luaL_checkinteger(L, 1);
                 *v = new VectorXd(size);
