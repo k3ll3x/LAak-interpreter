@@ -2,3 +2,5 @@
 **/eigen
 **/lua
 **/.vscode
+.vscode/*
+.vscode
