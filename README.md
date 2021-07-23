@@ -12,8 +12,9 @@ Comming back to the question _Why **LAak**?_ Well my designed "programming/scrip
 - [Eigen 3.3.9](https://eigen.tuxfamily.org/index.php?title=Main_Page)
 - [Lua 5.4.3](http://www.lua.org/ftp/lua-5.4.3.tar.gz)
 
-...Some useful references for Lua
+##### Some useful references for Lua
 
+* [Reference Manual](https://www.lua.org/manual/5.4/manual.html)
 * [Metatable Events](http://lua-users.org/wiki/MetatableEvents)
 * [CheatSheet for Lua Syntax](https://devhints.io/lua)
 * [Programming in Lua](https://www.lua.org/pil/contents.html)
@@ -77,6 +78,10 @@ The main.cc contains an instance of the _LuaHandler_ class
 int main(int argc, char** argv){   
     auto lua_hndl = LuaHandler();
 
+    if(argc > 1){
+        lua_hndl.do_string(argv[1]);
+    }
+
     std::string input;
     while(true){
         getline(std::cin, input);
@@ -93,10 +98,6 @@ int main(int argc, char** argv){
 
 #### Stucture
 Refactor, encalsulate LA domain and module vector, matrix, ...
-
-#### Vector
-- Modify logic on arithmetic and other metamethods to avoid creation of not used objects
-- Create methods for vector and enable to call them by the instance itself: x.normalize()
 
 #### Integrate the following libraries
 - RtAudio
