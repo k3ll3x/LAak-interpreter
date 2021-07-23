@@ -5,7 +5,7 @@ LAak is a scripting language powered by different libraries for Linear Algebra, 
 
 I was thinking of designing a programming language from scratch, I learned using _flex_ and _bison_ and I started implementing the language, then I decided to make my own Lexer and Parser in C++, after struggling with the creation of the parser I decided to look up for some scripting languages, and I found _Lua_ quite interesting, so I continued with Lua.
 
-Comming back to the question _Why **LAak**?_ Well my designed "programming/scripting" language is meant to have basic data structures which live in the domain of Linear Algebra, that's why _LA_ in **LAak**, Matrices and Vectors are very good for computation, specially working with computer graphics and other domains to, such as Audio and Images. What about _**ak**_ ? I want _LAak_ to be as _abstract_ as possible and easy to use, also I want it to be _agnostic_ from anything else, meaning that It can be easily modified to use different libraries for manipulating its data (matrix, vector, audio, graphics, etc...) that's where the **a** comes from, and finally **_k_**, it is very common in Mathematical notation to be used as a part of iteration, a variable that changes though time, an index. I also want that the language itself have some features like functional programming does.
+Comming back to the question _Why **LAak**?_ Well my designed "programming/scripting" language is meant to have basic data structures which lives in the domain of Linear Algebra, that's why _LA_ in **LAak**, Matrices and Vectors are very good for computation, specially working with computer graphics and other domains to, such as Audio and Images. What about _**ak**_ ? I want _LAak_ to be as _abstract_ as possible and easy to use, also I want it to be _agnostic_ from anything else, meaning that It can be easily modified to use different libraries for manipulating its data (matrix, vector, audio, graphics, etc...) that's where the **a** comes from, and finally **_k_**, it is very common in Mathematical notation to be used as a part of iteration, a variable that changes though time, an index. I also want that the language itself have some features like functional programming does.
 
 ## Used Libraries
 
@@ -97,7 +97,7 @@ int main(int argc, char** argv){
 ## To-Do
 
 #### Stucture
-Refactor, encalsulate LA domain and module vector, matrix, ...
+Refactor, encapsulate LA domain and make vector, matrix, ... modular
 
 #### Integrate the following libraries
 - RtAudio

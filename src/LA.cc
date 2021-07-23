@@ -83,7 +83,7 @@ int LA::new_vector(lua_State* L){
 
 int LA::free_vector(lua_State* L){
     VectorXd** v = check_vector(L);
-    // std::cout << *v << '\t' << "vector freed" << '\n';
+    std::cout << *v << '\t' << "vector freed" << '\n';
     delete *v;
     return 0;
 }
