@@ -12,6 +12,12 @@ Comming back to the question _Why **LAak**?_ Well my designed "programming/scrip
 - [Eigen 3.3.9](https://eigen.tuxfamily.org/index.php?title=Main_Page)
 - [Lua 5.4.3](http://www.lua.org/ftp/lua-5.4.3.tar.gz)
 
+...Some useful references for Lua
+
+* [Metatable Events](http://lua-users.org/wiki/MetatableEvents)
+* [CheatSheet for Lua Syntax](https://devhints.io/lua)
+* [Programming in Lua](https://www.lua.org/pil/contents.html)
+
 In my version a softlink was created in the project's root folder of every library.
 
 ```
