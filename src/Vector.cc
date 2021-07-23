@@ -159,10 +159,19 @@ int Vector::norm_vector(lua_State* L){
     return 0;
 }
 
+int Vector::normc_vector(lua_State* L){
+    VectorXd** v = check_vector(L);
+    VectorXd** r = (VectorXd**)lua_newuserdata(L, sizeof(VectorXd*));
+    *r = new VectorXd((*(*v)).normalized());
+    luaL_getmetatable(L, metatablename);
+    lua_setmetatable(L, -2);
+    return 0;
+}
+
 int Vector::mag_vector(lua_State* L){
     VectorXd** v = check_vector(L);
-    (*(*v)).norm();
-    return 0;
+    lua_pushnumber(L, (*(*v)).norm());
+    return 1;
 }
 
 int Vector::get_vecsize(lua_State* L){

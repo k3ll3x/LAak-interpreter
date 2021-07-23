@@ -27,13 +27,14 @@ typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> MatrixXd;
 class Vector {
 public:
     static void register_vector(lua_State* L);
+    static VectorXd** check_vector(lua_State* L, int idx=1);
 private:
     inline static const char* metatablename = "vector";
 
-    static VectorXd** check_vector(lua_State* L, int idx=1);
     static double* get_element(lua_State* L);
     static int new_vector(lua_State* L);
     static int norm_vector(lua_State* l);
+    static int normc_vector(lua_State* l);
     static int mag_vector(lua_State* l);
     static int get_vecsize(lua_State* L);
     static int free_vector(lua_State* L);
@@ -54,6 +55,7 @@ private:
         { "k", get_vecelem },
         { "__newindex", set_vecelem },
         { "normalize", norm_vector },
+        { "normalized", normc_vector },
         { "magnitude", mag_vector },
         { "size", get_vecsize },
         { nullptr, nullptr }
