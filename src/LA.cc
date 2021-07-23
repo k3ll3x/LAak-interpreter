@@ -1,19 +1,22 @@
 #include "LA.h"
 
-// void LA::register_methods(lua_State* L, luaL_Reg const* methods){
-//     for(int i = 0; (methods+i)->name != NULL; ++i){
-//         lua_pushcfunction(L, (methods+i)->func);
-//         lua_setfield(L, -2, (methods+i)->name);
-//     }
-// }
+void LA::register_methods(lua_State* L, luaL_Reg const* methods){
+    lua_pushstring(L, "__index");
+    lua_pushvalue(L, -2);
+    lua_settable(L, -3);
+    for(int i = 0; (methods+i)->name != nullptr; ++i){
+        lua_pushcfunction(L, (methods+i)->func);
+        lua_setfield(L, -2, (methods+i)->name);
+    }
+}
 
 void LA::register_vector(lua_State* L){
     luaL_newmetatable(L, "vector");
 
+    register_methods(L, vector_methods);
+
     luaL_setfuncs(L, vector_functions, 0);
     lua_setglobal(L, "vector");
-
-    // register_methods(L, vector_methods);
 }
 
 VectorXd** LA::check_vector(lua_State* L, int idx){
@@ -80,7 +83,7 @@ int LA::new_vector(lua_State* L){
 
 int LA::free_vector(lua_State* L){
     VectorXd** v = check_vector(L);
-    std::cout << *v << '\t' << *(*v) << "vector freed" << '\n';
+    // std::cout << *v << '\t' << "vector freed" << '\n';
     delete *v;
     return 0;
 }
@@ -134,15 +137,14 @@ int LA::mul_vector(lua_State* L){
 }
 
 int LA::norm_vector(lua_State* L){
-    //call print stack
-    int n = lua_gettop(L);
-    for(int i = 1; i < n; i++){
-        std::cout << "Type:\t" << lua_typename(L, i) << "Metatable:\t" << lua_getmetatable(L, i) << '\n';
-    }
-
-    std::cout << "Calling normalize vector!\n";
     VectorXd** v = check_vector(L);
     (*(*v)).normalize();
+    return 0;
+}
+
+int LA::get_vecsize(lua_State* L){
+    VectorXd** v = check_vector(L);
+    lua_pushinteger(L, (*(*v)).size());
     return 1;
 }
 

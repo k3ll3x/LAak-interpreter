@@ -37,35 +37,30 @@ laak
 #### Vectors
 
 ```lua
-x = vector.new(1,2,3)
-print(x)
-{ 1,2,3 }
+-- Simple examples of using vectors in LAak
 
--- table can be passed to constructor
-x = vector.new({1,2,3})
-
--- or just setting the size
-a = vector.new(4)
-print(a)
-{ 0,0,0,0 }
-
-z = x + x * 3
-print(z)
-{  4, 8,12 }
-
-z[0] = 4.2
-print(z)
-{ 4.2,  8, 12 }
-
-print(z[2])
-12.0
-
--- make constructors shorter
+-- making vector constructor shorter
 vec = vector.new
-t = { math.pi, math.pi*2, math.pi*3 }
-y = vec(t)
-print(y - vec(0.01,0.02,0.03))
-{ 3.13159,6.26319,9.39478 }
+
+-- pasing vector size, initialized with 0's
+x = vec(6)
+
+-- element setting __newindex
+for i = 0, x:size() - 1 do
+	x[i] = math.pi * (i+1)
+end
+
+-- vector multiplication by a scalar
+x = x * 3
+print(x)
+x:normalize()
+print(x)
+
+-- vector addition and substraction
+x = x + x
+
+-- I still don't know how to make multiple __index metamethods
+print(x:k(1))
 ```
 
 The main.cc contains an instance of the _LuaHandler_ class
@@ -89,6 +84,9 @@ int main(int argc, char** argv){
 ```
 
 ## To-Do
+
+#### Stucture
+Refactor, encalsulate LA domain and module vector, matrix, ...
 
 #### Vector
 - Modify logic on arithmetic and other metamethods to avoid creation of not used objects
