@@ -1,6 +1,6 @@
-#include "LA.h"
+#include "Vector.h"
 
-void LA::register_methods(lua_State* L, luaL_Reg const* methods){
+void Vector::register_methods(lua_State* L, luaL_Reg const* methods){
     lua_pushstring(L, "__index");
     lua_pushvalue(L, -2);
     lua_settable(L, -3);
@@ -10,40 +10,40 @@ void LA::register_methods(lua_State* L, luaL_Reg const* methods){
     }
 }
 
-void LA::register_vector(lua_State* L){
-    luaL_newmetatable(L, "vector");
+void Vector::register_vector(lua_State* L){
+    luaL_newmetatable(L, metatablename);
 
     register_methods(L, vector_methods);
 
     luaL_setfuncs(L, vector_functions, 0);
-    lua_setglobal(L, "vector");
+    lua_setglobal(L, metatablename);
 }
 
-VectorXd** LA::check_vector(lua_State* L, int idx){
-    void* ud = luaL_checkudata(L, idx, "vector");
+VectorXd** Vector::check_vector(lua_State* L, int idx){
+    void* ud = luaL_checkudata(L, idx, metatablename);
     luaL_argcheck(L, ud != NULL, idx, "vector expected");
     return (VectorXd**)ud;
 }
 
-double* LA::get_element(lua_State* L){
+double* Vector::get_element(lua_State* L){
     VectorXd** v = check_vector(L);
     int index = luaL_checkinteger(L, 2);
     luaL_argcheck(L, 0 <= index && index < (*(*v)).size(), 2, "index out of range");
     return &(*(*v))[index];
 }
 
-int LA::get_vecelem(lua_State* L){
+int Vector::get_vecelem(lua_State* L){
     lua_pushnumber(L, *get_element(L));
     return 1;
 }
 
-int LA::set_vecelem(lua_State* L){
+int Vector::set_vecelem(lua_State* L){
     double newval = luaL_checknumber(L, 3);
     *get_element(L) = newval;
     return 0;
 }
 
-int LA::new_vector(lua_State* L){
+int Vector::new_vector(lua_State* L){
     int n = lua_gettop(L);
     if(n >= 1){
         VectorXd** v = (VectorXd**)lua_newuserdata(L, sizeof(VectorXd*));
@@ -76,19 +76,19 @@ int LA::new_vector(lua_State* L){
     }else{
         return luaL_error(L, "Expected more arguments");
     }
-    luaL_getmetatable(L, "vector");
+    luaL_getmetatable(L, metatablename);
     lua_setmetatable(L, -2);
     return 1;
 }
 
-int LA::free_vector(lua_State* L){
+int Vector::free_vector(lua_State* L){
     VectorXd** v = check_vector(L);
     std::cout << *v << '\t' << "vector freed" << '\n';
     delete *v;
     return 0;
 }
 
-int LA::add_vectors(lua_State* L){
+int Vector::add_vectors(lua_State* L){
     VectorXd** a = check_vector(L);
     VectorXd** b = check_vector(L, 2);
 
@@ -98,13 +98,13 @@ int LA::add_vectors(lua_State* L){
     VectorXd** v = (VectorXd**)lua_newuserdata(L, sizeof(VectorXd*));
     *v = new VectorXd((*(*a)) + (*(*b)));
 
-    luaL_getmetatable(L, "vector");
+    luaL_getmetatable(L, metatablename);
     lua_setmetatable(L, -2);
 
     return 1;
 }
 
-int LA::sub_vectors(lua_State* L){
+int Vector::sub_vectors(lua_State* L){
     VectorXd** a = check_vector(L);
     VectorXd** b = check_vector(L, 2);
 
@@ -114,12 +114,12 @@ int LA::sub_vectors(lua_State* L){
     VectorXd** v = (VectorXd**)lua_newuserdata(L, sizeof(VectorXd*));
 
     *v = new VectorXd((*(*a)) - (*(*b)));
-    luaL_getmetatable(L, "vector");
+    luaL_getmetatable(L, metatablename);
     lua_setmetatable(L, -2);
     return 1;
 }
 
-int LA::mul_vector(lua_State* L){
+int Vector::mul_vector(lua_State* L){
     double a;
     VectorXd** v;
     if(lua_isnumber(L,1)){
@@ -131,24 +131,64 @@ int LA::mul_vector(lua_State* L){
     }
     VectorXd** r = (VectorXd**)lua_newuserdata(L, sizeof(VectorXd*));
     *r = new VectorXd(a * (*(*v)));
-    luaL_getmetatable(L, "vector");
+    luaL_getmetatable(L, metatablename);
     lua_setmetatable(L, -2);
     return 1;
 }
 
-int LA::norm_vector(lua_State* L){
+int Vector::div_vector(lua_State* L){
+    double a;
+    VectorXd** v;
+    if(lua_isnumber(L,1)){
+        a = luaL_checknumber(L, 1);
+        v = check_vector(L, 2);
+    }else{
+        a = luaL_checknumber(L, 2);
+        v = check_vector(L);
+    }
+    VectorXd** r = (VectorXd**)lua_newuserdata(L, sizeof(VectorXd*));
+    *r = new VectorXd((1/a) * (*(*v)));
+    luaL_getmetatable(L, metatablename);
+    lua_setmetatable(L, -2);
+    return 1;
+}
+
+int Vector::norm_vector(lua_State* L){
     VectorXd** v = check_vector(L);
     (*(*v)).normalize();
     return 0;
 }
 
-int LA::get_vecsize(lua_State* L){
+int Vector::mag_vector(lua_State* L){
+    VectorXd** v = check_vector(L);
+    (*(*v)).norm();
+    return 0;
+}
+
+int Vector::get_vecsize(lua_State* L){
     VectorXd** v = check_vector(L);
     lua_pushinteger(L, (*(*v)).size());
     return 1;
 }
 
-int LA::vector_tostring(lua_State* L){
+int Vector::eq_vectors(lua_State* L){
+    VectorXd** a = check_vector(L);
+    VectorXd** b = check_vector(L, 2);
+    lua_pushboolean(L, (*(*a)) == (*(*b)));
+    return 1;
+}
+
+int Vector::unm_vectors(lua_State* L){
+    VectorXd** a = check_vector(L);
+    VectorXd** r = (VectorXd**)lua_newuserdata(L, sizeof(VectorXd*));
+    *r = new VectorXd((*(*a)));
+    (*(*r)) = -(*(*r));
+    luaL_getmetatable(L, metatablename);
+    lua_setmetatable(L, -2);
+    return 1;
+}
+
+int Vector::vector_tostring(lua_State* L){
     VectorXd** v = check_vector(L);
     std::ostringstream vosb;
     vosb << (*(*v));

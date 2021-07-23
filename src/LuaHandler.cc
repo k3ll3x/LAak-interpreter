@@ -5,7 +5,7 @@ LuaHandler::LuaHandler(){
     luaL_openlibs(this->L);
 
     //register vector methods
-    LA::register_vector(L);
+    LA::register_la(L);
 }
 
 LuaHandler::~LuaHandler(){
