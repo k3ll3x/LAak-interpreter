@@ -1,13 +1,19 @@
 #include "LA.h"
 
+// void LA::register_methods(lua_State* L, luaL_Reg const* methods){
+//     for(int i = 0; (methods+i)->name != NULL; ++i){
+//         lua_pushcfunction(L, (methods+i)->func);
+//         lua_setfield(L, -2, (methods+i)->name);
+//     }
+// }
+
 void LA::register_vector(lua_State* L){
     luaL_newmetatable(L, "vector");
-    lua_pushcfunction(L, get_vecelem);
-    lua_setfield(L, -2, "__index");
-    lua_pushcfunction(L, set_vecelem);
-    lua_setfield(L, -2, "__newindex");
-    luaL_setfuncs(L, vector_methods, 0);
+
+    luaL_setfuncs(L, vector_functions, 0);
     lua_setglobal(L, "vector");
+
+    // register_methods(L, vector_methods);
 }
 
 VectorXd** LA::check_vector(lua_State* L, int idx){
@@ -56,20 +62,27 @@ int LA::new_vector(lua_State* L){
             }else{
                 return luaL_error(L, "Expected number or table/list");
             }
-        }else{
+        }
+        else{
             //create vector with multiple arguments
             *v = new VectorXd(n);
             for(int i = 1; i <= n; i++){
                 (*(*v))[i-1] = luaL_checknumber(L, i);
             }
         }
-        // lua_getglobal(L, "vector");
-        luaL_getmetatable(L, "vector");
-        lua_setmetatable(L, -2);
     }else{
         return luaL_error(L, "Expected more arguments");
     }
+    luaL_getmetatable(L, "vector");
+    lua_setmetatable(L, -2);
     return 1;
+}
+
+int LA::free_vector(lua_State* L){
+    VectorXd** v = check_vector(L);
+    std::cout << *v << '\t' << *(*v) << "vector freed" << '\n';
+    delete *v;
+    return 0;
 }
 
 int LA::add_vectors(lua_State* L){
@@ -80,11 +93,11 @@ int LA::add_vectors(lua_State* L){
         return luaL_error(L, "Vector sizes are not the same");
 
     VectorXd** v = (VectorXd**)lua_newuserdata(L, sizeof(VectorXd*));
-
     *v = new VectorXd((*(*a)) + (*(*b)));
 
     luaL_getmetatable(L, "vector");
     lua_setmetatable(L, -2);
+
     return 1;
 }
 
@@ -117,6 +130,19 @@ int LA::mul_vector(lua_State* L){
     *r = new VectorXd(a * (*(*v)));
     luaL_getmetatable(L, "vector");
     lua_setmetatable(L, -2);
+    return 1;
+}
+
+int LA::norm_vector(lua_State* L){
+    //call print stack
+    int n = lua_gettop(L);
+    for(int i = 1; i < n; i++){
+        std::cout << "Type:\t" << lua_typename(L, i) << "Metatable:\t" << lua_getmetatable(L, i) << '\n';
+    }
+
+    std::cout << "Calling normalize vector!\n";
+    VectorXd** v = check_vector(L);
+    (*(*v)).normalize();
     return 1;
 }
 

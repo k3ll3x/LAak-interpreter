@@ -90,11 +90,16 @@ int main(int argc, char** argv){
 
 ## To-Do
 
-Integrate the following libraries
+#### Vector
+- Modify logic on arithmetic and other metamethods to avoid creation of not used objects
+- Create methods for vector and enable to call them by the instance itself: x.normalize()
+
+#### Integrate the following libraries
 - RtAudio
 - RtMidi
 - OpenGL
 - ImGUI
+- OpenGL
 
 This project will be merged with another project I have been working on, which is a Graphics Engine, the interpreter will be able to create and manipulate 3D objects, windows, audio and midi.
 
