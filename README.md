@@ -70,34 +70,10 @@ x = x + x
 print(x:k(1))
 ```
 
-The main.cc contains an instance of the _LuaHandler_ class
-
-```cpp
-#include "LuaHandler.h"
-
-int main(int argc, char** argv){   
-    auto lua_hndl = LuaHandler();
-
-    if(argc > 1){
-        lua_hndl.do_string(argv[1]);
-    }
-
-    std::string input;
-    while(true){
-        getline(std::cin, input);
-        if(input == "quit")
-            break;
-        lua_hndl.do_string(input);
-    }
-
-    return 0;
-}
-```
-
 ## To-Do
 
 #### Stucture
-Refactor, encapsulate LA domain and make vector, matrix, ... modular
+- Maybe it would be a good idea to make an abstract class for Vector and Matrix, since they are the same datatype for Eigen and some of the methods are similar.
 
 #### Integrate the following libraries
 - RtAudio
@@ -105,6 +81,8 @@ Refactor, encapsulate LA domain and make vector, matrix, ... modular
 - OpenGL
 - ImGUI
 - OpenGL
+
+Also I am considering to incorporate for the first versions the [OlcPixelGameEngine](https://github.com/OneLoneCoder/olcPixelGameEngine/)
 
 This project will be merged with another project I have been working on, which is a Graphics Engine, the interpreter will be able to create and manipulate 3D objects, windows, audio and midi.
 

@@ -27,15 +27,26 @@ typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> MatrixXd;
 class Vector {
 public:
     static void register_vector(lua_State* L);
+    static bool isvector(lua_State* L, int idx=1);
     static VectorXd** check_vector(lua_State* L, int idx=1);
+    inline static const char* vec_metatablename = "vector";
 private:
-    inline static const char* metatablename = "vector";
+    //Matrix and Vector classes should be refactored with inheritance, I think
+    inline static MatrixXd** check_matrix(lua_State* L, int idx){
+        void* ud = luaL_checkudata(L, idx, "matrix");
+        luaL_argcheck(L, ud != NULL, idx, "matrix expected");
+        return (MatrixXd**)ud;
+    }
+
 
     static double* get_element(lua_State* L);
     static int new_vector(lua_State* L);
     static int norm_vector(lua_State* l);
     static int normc_vector(lua_State* l);
     static int mag_vector(lua_State* l);
+    static int dot_vectors(lua_State* l);
+    static int T_vector(lua_State* l);
+    static int type_vector(lua_State* l);
     static int get_vecsize(lua_State* L);
     static int free_vector(lua_State* L);
     static int get_vecelem(lua_State* L);
@@ -57,6 +68,9 @@ private:
         { "normalize", norm_vector },
         { "normalized", normc_vector },
         { "magnitude", mag_vector },
+        { "dot", dot_vectors },
+        { "transpose", T_vector },
+        { "type", type_vector },
         { "size", get_vecsize },
         { nullptr, nullptr }
     };
