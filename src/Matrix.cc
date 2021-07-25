@@ -20,8 +20,11 @@ void Matrix::register_matrix(lua_State* L){
 }
 
 bool Matrix::ismatrix(lua_State* L, int idx){
-    void* ud = luaL_checkudata(L, idx, mat_metatablename);
-    return (ud != NULL);
+    //painfull way to learn this shit, watch out from luaL_checkudata, does some crazy shit
+    lua_getmetatable(L, idx);
+    lua_pushstring(L, "__name");
+    lua_rawget(L, idx+1);
+    return (strcmp(luaL_checkstring(L, -1), mat_metatablename) == 0);
 }
 
 MatrixXd** Matrix::check_matrix(lua_State* L, int idx){
@@ -131,9 +134,7 @@ int Matrix::mul_matrix(lua_State* L){
     MatrixXd** a;
     MatrixXd** b;
     VectorXd** v;
-    std::cout << "WTF\n";
     if(lua_isnumber(L,1)){
-        std::cout << "number 1\n";
         s = luaL_checknumber(L, 1);
         a = check_matrix(L, 2);
         MatrixXd** r = (MatrixXd**)lua_newuserdata(L, sizeof(MatrixXd*));
@@ -141,49 +142,32 @@ int Matrix::mul_matrix(lua_State* L){
         luaL_getmetatable(L, mat_metatablename);
         lua_setmetatable(L, -2);
         return 1;
-    }else if(ismatrix(L)){
-        std::cout << "matrix 1\n";
+    }else if(lua_isnumber(L, 2)){
         a = check_matrix(L);
-        if(ismatrix(L, 2)){
-            std::cout << "matrix 2\n";
-            b = check_matrix(L, 2);
-            if((*(*a)).cols() == (*(*b)).rows()){
-                MatrixXd** r = (MatrixXd**)lua_newuserdata(L, sizeof(MatrixXd*));
-                *r = new MatrixXd((*(*a)) * (*(*b)));
-                luaL_getmetatable(L, mat_metatablename);
-                lua_setmetatable(L, -2);
-                return 1;
-            }else{
-                return luaL_error(L, "Matrices columns and rows are not the same");
-            }
-        }else if(Vector::isvector(L, 2)){
-            std::cout << "vector 2\n";
-            v = Vector::check_vector(L, 2);
-            if((*(*a)).cols() == (*(*v)).rows()){
-                VectorXd** r = (VectorXd**)lua_newuserdata(L, sizeof(VectorXd*));
-                *r = new VectorXd((*(*a)) * (*(*v)));
-                luaL_getmetatable(L, Vector::vec_metatablename);
-                lua_setmetatable(L, -2);
-                return 1;
-            }else{
-                return luaL_error(L, "Matrix columns and Vector rows are not the same");
-            }
-        }else{
-            std::cout << "number 2\n";
-            s = luaL_checknumber(L, 2);
+        s = luaL_checknumber(L, 2);
+        MatrixXd** r = (MatrixXd**)lua_newuserdata(L, sizeof(MatrixXd*));
+        *r = new MatrixXd((*(*a)) * s);
+        luaL_getmetatable(L, mat_metatablename);
+        lua_setmetatable(L, -2);
+        return 1;
+    }else if(ismatrix(L, 2)){
+        a = check_matrix(L);
+        b = check_matrix(L, 2);
+        if((*(*a)).cols() == (*(*b)).rows()){
             MatrixXd** r = (MatrixXd**)lua_newuserdata(L, sizeof(MatrixXd*));
-            *r = new MatrixXd((*(*a)) * s);
+            *r = new MatrixXd((*(*a)) * (*(*b)));
             luaL_getmetatable(L, mat_metatablename);
             lua_setmetatable(L, -2);
             return 1;
+        }else{
+            return luaL_error(L, "Matrices columns and rows are not the same");
         }
     }else{
-        std::cout << "vector 1\n";
-        v = Vector::check_vector(L, 1);
-        a = check_matrix(L, 2);
-        if((*(*v)).cols() == (*(*a)).rows()){
+        a = check_matrix(L);
+        v = Vector::check_vector(L, 2);
+        if((*(*a)).cols() == (*(*v)).rows()){
             VectorXd** r = (VectorXd**)lua_newuserdata(L, sizeof(VectorXd*));
-            *r = new VectorXd((*(*v)) * (*(*a)));
+            *r = new VectorXd((*(*a)) * (*(*v)));
             luaL_getmetatable(L, Vector::vec_metatablename);
             lua_setmetatable(L, -2);
             return 1;

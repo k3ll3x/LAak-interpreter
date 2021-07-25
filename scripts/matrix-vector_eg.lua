@@ -62,7 +62,12 @@ print(B:ij(1,1))
 B:ij(1,1,math.pi)
 
 -- Matrix operations
-print(A*B*C)
+print("multiply matrix")
+-- print(A*B*C)
+print(A*a)
+print("print matrix * matrix")
+print(A*B)
 print(math.pi*C)
+print(C*math.cos(30*math.pi))
 print(B*b)
 print(a:transpose()*A)
