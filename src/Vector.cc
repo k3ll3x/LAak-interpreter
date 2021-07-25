@@ -208,13 +208,10 @@ int Vector::cross_vectors(lua_State* L){
     VectorXd** b = check_vector(L,2);
     if((*(*a)).size() != (*(*b)).size() || (*(*a)).size() != 3)
         return luaL_error(L, "Vector sizes are not the same and they should be 3 dimensions");
-    std::cout << "Pass 1\n";
     Eigen::Vector<double, 3> aa, bb;
     aa = (*(*a));
     bb = (*(*b));
-    std::cout << "Pass 2\n";
     auto v = aa.cross(bb);
-    std::cout << "Pass 3\n";
     VectorXd** r = (VectorXd**)lua_newuserdata(L, sizeof(VectorXd*));
     *r = new VectorXd(v);
     luaL_getmetatable(L, vec_metatablename);
