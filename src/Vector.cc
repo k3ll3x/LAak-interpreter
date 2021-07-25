@@ -127,7 +127,6 @@ int Vector::sub_vectors(lua_State* L){
 }
 
 int Vector::mul_vector(lua_State* L){
-    std::cout << "mulvec\n";
     double a;
     VectorXd** v;
     if(lua_isnumber(L,1)){
@@ -137,7 +136,6 @@ int Vector::mul_vector(lua_State* L){
         a = luaL_checknumber(L, 2);
         v = check_vector(L);
     }else{
-        std::cout << "v * M\n";
         v = Vector::check_vector(L, 1);
         MatrixXd** m = check_matrix(L, 2);
         if((*(*v)).cols() == (*(*m)).rows()){
@@ -199,17 +197,36 @@ int Vector::dot_vectors(lua_State* L){
     VectorXd** a = check_vector(L);
     VectorXd** b = check_vector(L, 2);
     if((*(*a)).size() != (*(*b)).size())
-            return luaL_error(L, "Vector sizes are not the same");
+        return luaL_error(L, "Vector sizes are not the same");
     auto d = (*(*a)).dot(*(*b));
     lua_pushnumber(L, d);
+    return 1;
+}
+
+int Vector::cross_vectors(lua_State* L){
+    VectorXd** a = check_vector(L);
+    VectorXd** b = check_vector(L,2);
+    if((*(*a)).size() != (*(*b)).size() || (*(*a)).size() != 3)
+        return luaL_error(L, "Vector sizes are not the same and they should be 3 dimensions");
+    std::cout << "Pass 1\n";
+    Eigen::Vector<double, 3> aa, bb;
+    aa = (*(*a));
+    bb = (*(*b));
+    std::cout << "Pass 2\n";
+    auto v = aa.cross(bb);
+    std::cout << "Pass 3\n";
+    VectorXd** r = (VectorXd**)lua_newuserdata(L, sizeof(VectorXd*));
+    *r = new VectorXd(v);
+    luaL_getmetatable(L, vec_metatablename);
+    lua_setmetatable(L, -2);
     return 1;
 }
 
 int Vector::T_vector(lua_State* L){
     VectorXd** a = check_vector(L);
     VectorXd** r = (VectorXd**)lua_newuserdata(L, sizeof(VectorXd*));
-    VectorXd transpose = (*(*a)).transpose();
-    *r = new VectorXd(transpose);
+    *r = new VectorXd((*(*a)).size());
+    (*(*r)) = (*(*a)).transpose();
     luaL_getmetatable(L, vec_metatablename);
     lua_setmetatable(L, -2);
     return 1;

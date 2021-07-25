@@ -36,6 +36,11 @@ print(a:normalized())
 -- dot product
 print(a:dot(c))
 
+-- cross product
+v = vector.new(1,2,3)
+w = vector.new(0,1,2)
+print(v:cross(w))
+
 -- change vector value with index and get value at index with k method
 -- (I still don't know how to make multiple __index metamethods)
 a[0] = math.cos(c:k(3))

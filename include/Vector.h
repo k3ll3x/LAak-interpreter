@@ -20,6 +20,7 @@ extern "C" {
 #ifndef EIGEN
 #define EIGEN
 #include "Eigen/Dense"
+#include "Eigen/Geometry"
 typedef Eigen::Vector<double, Eigen::Dynamic> VectorXd;
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> MatrixXd;
 #endif
@@ -45,6 +46,7 @@ private:
     static int normc_vector(lua_State* l);
     static int mag_vector(lua_State* l);
     static int dot_vectors(lua_State* l);
+    static int cross_vectors(lua_State* l);
     static int T_vector(lua_State* l);
     static int type_vector(lua_State* l);
     static int get_vecsize(lua_State* L);
@@ -69,6 +71,7 @@ private:
         { "normalized", normc_vector },
         { "magnitude", mag_vector },
         { "dot", dot_vectors },
+        { "cross", cross_vectors },
         { "transpose", T_vector },
         { "type", type_vector },
         { "size", get_vecsize },
