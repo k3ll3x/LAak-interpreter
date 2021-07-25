@@ -59,7 +59,7 @@ print(v:k(2))
 -- member methods
 u:normalize()
 nv = v:normalized()
-print(w:magnitude)
+print(w:magnitude())
 print(v:dot(w))
 print(v:cross(w))
 ut = u:transpose()
