@@ -3,8 +3,6 @@
 class Vector {
 public:
     static void register_vector(lua_State* L);
-    static bool isvector(lua_State* L, const char* name = MatVec::vec_metatablename, int idx=1);
-
 private:
     static double* get_element(lua_State* L, const char* name = MatVec::vec_metatablename);
     static int new_vector(lua_State* L);

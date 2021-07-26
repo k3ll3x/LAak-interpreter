@@ -72,7 +72,11 @@ int Matrix::ij_matrix(lua_State* L){
             (*(*m))(i,j) = luaL_checknumber(L, 4);
             return 0;
         }
-        lua_pushnumber(L, (*(*m))(i,j));
+        if(lua_checkstack(L, 1)){
+            lua_pushnumber(L, (*(*m))(i,j));
+        }else{
+            return luaL_error(L, "no more space in stack");
+        }
     }else{
         return luaL_error(L, "index out of range");
     }
@@ -81,7 +85,11 @@ int Matrix::ij_matrix(lua_State* L){
 
 int Matrix::get_matsize(lua_State* L){
     MatrixXd** m = MatVec::check_matrix(L);
-    lua_pushinteger(L, (*(*m)).size());
+    if(lua_checkstack(L, 1)){
+        lua_pushinteger(L, (*(*m)).size());
+    }else{
+        return luaL_error(L, "no more space in stack");
+    }
     return 1;
 }
 
@@ -179,7 +187,11 @@ int Matrix::mul_matrix(lua_State* L){
 int Matrix::eq_matrix(lua_State* L){
     MatrixXd** a = MatVec::check_matrix(L);
     MatrixXd** b = MatVec::check_matrix(L, 2);
-    lua_pushboolean(L, (*(*a)) == (*(*b)));
+    if(lua_checkstack(L, 1)){
+        lua_pushboolean(L, (*(*a)) == (*(*b)));
+    }else{
+        return luaL_error(L, "no more space in stack");
+    }
     return 1;
 }
 
@@ -189,6 +201,10 @@ int Matrix::matrix_tostring(lua_State* L){
     mosb << (*(*m));
     std::string mstr = mosb.str();
     // std::replace(mstr.begin(), mstr.end(), '\n', ',');
-    lua_pushfstring(L, "%s", mstr.c_str());
+    if(lua_checkstack(L, 1)){
+        lua_pushfstring(L, "%s", mstr.c_str());
+    }else{
+        return luaL_error(L, "no more space in stack");
+    }
     return 1;
 }
