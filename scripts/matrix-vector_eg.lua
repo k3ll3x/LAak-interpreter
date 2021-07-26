@@ -77,16 +77,16 @@ C = mat(4,4,math.random())
 
 -- indexing matrices
 print(B:ij(1,1))
+print(B:rc(0,1))
 
 -- set values
 B:ij(1,1,math.pi)
+B:ij(0,1,math.random())
 
 -- Matrix operations
 print("multiply matrix")
--- print(A*B*C)
+print(A*B*C)
 print(A*a)
-print("print matrix * matrix")
-print(A*B)
 print(math.pi*C)
 print(C*math.cos(30*math.pi))
 print(B*b)

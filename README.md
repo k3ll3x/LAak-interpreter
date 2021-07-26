@@ -36,7 +36,7 @@ cmake ..
 
 ## Usage
 
-At the moment only the basic components of _Eigen_ vectors are implemented. Run the interpreter:
+Matrices and Vectors can be used on the interpreter
 
 ```bash
 laak
@@ -57,18 +57,35 @@ u[2] = math.sin(math.pi)
 print(v:k(2))
 
 -- member methods
+
+-- normalize
 u:normalize()
+u:n()
+
+-- copy of normalized
 nv = v:normalized()
-print(w:magnitude())
-print(v:dot(w))
-print(v:cross(w))
+nv = v:nd()
+
+-- magnitude
+w_mag = w:magnitude()
+w_mag = w:mag()
+
+vw_dot = v:dot(w)
+vw_cross = v:cross(w)
+
+-- transpose
 ut = u:transpose()
-print(v:type())
-print(v:size())
+ut = u:t()
+
+v_type = v:type()
+v_size = v:size()
 
 -- Arithmetic
 v = v + w - u * 3
 v = -v
+s = v:t() * v
+M = v * v:t()
+v_row = v:t() * M
 
 -- Compare
 print(v == w)
@@ -77,12 +94,58 @@ print(v == w)
 #### Matrix
 
 ```lua
+-- constructors
+mat = matrix.new
+
+-- 3x3 matrix initialized with 0's
+A = mat(3,3)
+
+-- 3x3 identity matrix
+B = mat(3,3,"i")
+
+-- set all to given value
+C = mat(4,4,math.random())
+
+-- index
+-- set values
+A:ij(0,0,math.random())
+A:rc(0,1,math.random())
+
+-- get values
+print(A:ij(0,0))
+print(A:rc(0,1))
+
+-- matrix methods
+print(C:size())
+print(C:cols())
+print(B:rows())
+
+-- A transposed
+At = A:transpose()
+At = A:t()
+
+-- Transpose C in place
+C:transposed()
+C:td()
+
+-- Conjugate
+print(B:conjugate())
+print(B:conj())
+
+-- Adjoint
+print(A:adjoint())
+print(A:adj())
+
+-- Adjoint in place
+A:adjointed()
+A:adjd()
 ```
 
 ## To-Do
 
-#### Stucture
-- Maybe it would be a good idea to make an abstract class for Vector and Matrix, since they are the same datatype for Eigen and some of the methods are similar.
+#### Garbage Collection and Memory allocation
+- Create a list of of allocated objects for further usage and disposal
+- Fix RowVector `__gc` method it is never called
 
 #### Integrate the following libraries
 - RtAudio

@@ -100,6 +100,26 @@ int Matrix::get_matsize(lua_State* L){
     return 1;
 }
 
+int Matrix::cols_matrix(lua_State* L){
+    MatrixXd** m = MatVec::check_matrix(L);
+    if(lua_checkstack(L, 1)){
+        lua_pushinteger(L, (*(*m)).cols());
+    }else{
+        return luaL_error(L, MatVec::nospacestack);
+    }
+    return 1;
+}
+
+int Matrix::cols_matrix(lua_State* L){
+    MatrixXd** m = MatVec::check_matrix(L);
+    if(lua_checkstack(L, 1)){
+        lua_pushinteger(L, (*(*m)).rows());
+    }else{
+        return luaL_error(L, MatVec::nospacestack);
+    }
+    return 1;
+}
+
 int Matrix::T_matrix(lua_State* L){
     MatrixXd** m = MatVec::check_matrix(L);
     MatVec::alloc_matrix(L, (*(*m)).transpose());

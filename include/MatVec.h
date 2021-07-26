@@ -7,11 +7,6 @@ extern "C" {
 }
 #endif
 
-#ifndef ALGORITHM
-#define ALGORITHM
-#include <algorithm>
-#endif
-
 #ifndef IOSTREAM
 #define IOSTREAM
 #include <iostream>

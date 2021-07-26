@@ -232,7 +232,7 @@ int Vector::mul_vector(lua_State* L){
         return 1;
     }else{
         //column vector * row vector = matrix
-        VectorXd** a = (VectorXd**)MatVec::check_vector(L, MatVec::vec_metatablename);
+        VectorXd** a = (VectorXd**)MatVec::check_vector(L);
         RowVectorXd** b = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename, 2);
         if((*(*a)).rows() != (*(*b)).cols())
             return luaL_error(L, "Vector rows and cols are not the same");
@@ -346,7 +346,7 @@ int Vector::T_vector(lua_State* L){
     }else{
         RowVectorXd** a = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename);
         auto r = VectorXd((*(*a)).transpose());
-        MatVec::alloc_vector(L, &r, MatVec::vec_metatablename);
+        MatVec::alloc_vector(L, &r);
     }
     return 1;
 }
