@@ -150,6 +150,66 @@ int Matrix::adjd_matrix(lua_State* L){
     return 1;
 }
 
+int sum_matrix(lua_State* L){
+    MatrixXd** m = MatVec::check_matrix(L);
+    if(lua_checkstack(L, 1)){
+        lua_pushinteger(L, (*(*m)).sum());
+    }else{
+        return luaL_error(L, MatVec::nospacestack);
+    }
+    return 1;
+}
+
+int prod_matrix(lua_State* L){
+    MatrixXd** m = MatVec::check_matrix(L);
+    if(lua_checkstack(L, 1)){
+        lua_pushinteger(L, (*(*m)).prod());
+    }else{
+        return luaL_error(L, MatVec::nospacestack);
+    }
+    return 1;
+}
+
+int mean_matrix(lua_State* L){
+    MatrixXd** m = MatVec::check_matrix(L);
+    if(lua_checkstack(L, 1)){
+        lua_pushinteger(L, (*(*m)).mean());
+    }else{
+        return luaL_error(L, MatVec::nospacestack);
+    }
+    return 1;
+}
+
+int mincoeff_matrix(lua_State* L){
+    MatrixXd** m = MatVec::check_matrix(L);
+    if(lua_checkstack(L, 1)){
+        lua_pushinteger(L, (*(*m)).minCoeff());
+    }else{
+        return luaL_error(L, MatVec::nospacestack);
+    }
+    return 1;
+}
+
+int maxcoeff_matrix(lua_State* L){
+    MatrixXd** m = MatVec::check_matrix(L);
+    if(lua_checkstack(L, 1)){
+        lua_pushinteger(L, (*(*m)).maxCoeff());
+    }else{
+        return luaL_error(L, MatVec::nospacestack);
+    }
+    return 1;
+}
+
+int trace_matrix(lua_State* L){
+    MatrixXd** m = MatVec::check_matrix(L);
+    if(lua_checkstack(L, 1)){
+        lua_pushinteger(L, (*(*m)).trace());
+    }else{
+        return luaL_error(L, MatVec::nospacestack);
+    }
+    return 1;
+}
+
 int Matrix::add_matrix(lua_State* L){
     MatrixXd** a = MatVec::check_matrix(L);
     MatrixXd** b = MatVec::check_matrix(L, 2);

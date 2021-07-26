@@ -19,6 +19,12 @@ private:
     static int conj_matrix(lua_State* L);
     static int adj_matrix(lua_State* L);
     static int adjd_matrix(lua_State* L);
+    static int sum_matrix(lua_State* L);
+    static int prod_matrix(lua_State* L);
+    static int mean_matrix(lua_State* L);
+    static int mincoeff_matrix(lua_State* L);
+    static int maxcoeff_matrix(lua_State* L);
+    static int trace_matrix(lua_State* L);
     static int free_matrix(lua_State* L);
     static int eq_matrix(lua_State* L);
     static int matrix_tostring(lua_State* L);
@@ -41,6 +47,14 @@ private:
         { "adj", adj_matrix },
         { "adjointed", adjd_matrix },
         { "adjd", adjd_matrix },
+        { "sum", sum_matrix },
+        { "prod", prod_matrix },
+        { "mean", mean_matrix },
+        { "minCoeff", mincoeff_matrix },
+        { "minc", mincoeff_matrix },
+        { "maxCoeff", maxcoeff_matrix },
+        { "maxc", maxcoeff_matrix },
+        { "trace", trace_matrix },
         { nullptr, nullptr }
     };
 

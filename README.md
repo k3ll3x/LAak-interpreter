@@ -139,6 +139,21 @@ print(A:adj())
 -- Adjoint in place
 A:adjointed()
 A:adjd()
+
+-- Basic arithmetic reduction operations
+print(C:sum())
+print(C:prod())
+print(C:mean())
+
+-- min coefficient
+print(C:minCoeff())
+print(C:minc())
+
+-- max coefficient
+print(C:maxCoeff())
+print(C:maxc())
+
+print(C:trace())
 ```
 
 ## To-Do
