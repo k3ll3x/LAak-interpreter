@@ -1,33 +1,8 @@
-#ifndef LUA
-#define LUA
-extern "C" {
-    #include "lua.h"
-    #include "lualib.h"
-    #include "lauxlib.h"
-}
-#endif
-
-#ifndef ALGORITHM
-#define ALGORITHM
-#include <algorithm>
-#endif
-
-#ifndef IOSTREAM
-#define IOSTREAM
-#include <iostream>
-#endif
-
-#ifndef VECTOR
-#define VECTOR
-#include "Vector.h"
-#endif
+#include "MatVec.h"
 
 class Matrix {
 public:
-    static bool ismatrix(lua_State* L, int idx=1);
-    static MatrixXd** check_matrix(lua_State* L, int idx=1);
     static void register_matrix(lua_State* L);
-    inline static const char* mat_metatablename = "matrix";
 private:
     inline static const char* identity = "i";
 
@@ -37,7 +12,13 @@ private:
     static int add_matrix(lua_State* L);
     static int sub_matrix(lua_State* L);
     static int mul_matrix(lua_State* L);
+    static int T_matrix(lua_State* L);
+    static int Td_matrix(lua_State* L);
+    static int conj_matrix(lua_State* L);
+    static int adj_matrix(lua_State* L);
+    static int adjd_matrix(lua_State* L);
     static int free_matrix(lua_State* L);
+    static int eq_matrix(lua_State* L);
     static int matrix_tostring(lua_State* L);
 
     static void register_methods(lua_State* L, luaL_Reg const* methods);
@@ -46,6 +27,16 @@ private:
         { "ij", ij_matrix },
         { "rc", ij_matrix },
         { "size", get_matsize },
+        { "transpose", T_matrix },
+        { "t", T_matrix },
+        { "transposed", Td_matrix },
+        { "td", Td_matrix },
+        { "conjugate", conj_matrix },
+        { "conj", conj_matrix },
+        { "adjoint", adj_matrix },
+        { "adj", adj_matrix },
+        { "adjointed", adjd_matrix },
+        { "adjd", adjd_matrix },
         { nullptr, nullptr }
     };
 
@@ -55,6 +46,7 @@ private:
         { "__add", add_matrix },
         { "__sub", sub_matrix },
         { "__mul", mul_matrix },
+        { "__eq", eq_matrix },
         { "__tostring", matrix_tostring },
         { nullptr, nullptr }
     };

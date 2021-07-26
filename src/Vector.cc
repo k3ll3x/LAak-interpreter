@@ -11,32 +11,36 @@ void Vector::register_methods(lua_State* L, luaL_Reg const* methods){
 }
 
 void Vector::register_vector(lua_State* L){
-    luaL_newmetatable(L, vec_metatablename);
+    //Column Vectors
+    luaL_newmetatable(L, MatVec::vec_metatablename);
 
     register_methods(L, vector_methods);
 
     luaL_setfuncs(L, vector_functions, 0);
-    lua_setglobal(L, vec_metatablename);
+    lua_setglobal(L, MatVec::vec_metatablename);
+
+    //Row Vectors
+    luaL_newmetatable(L, MatVec::rowvec_metatablename);
+
+    register_methods(L, vector_methods);
+
+    luaL_setfuncs(L, vector_functions, 0);
+    lua_setglobal(L, MatVec::rowvec_metatablename);
 }
 
-bool Vector::isvector(lua_State* L, int idx){
-    lua_getmetatable(L, idx);
-    lua_pushstring(L, "__name");
-    lua_rawget(L, idx+1);
-    return (strcmp(luaL_checkstring(L, -1), vec_metatablename) == 0);
-}
-
-VectorXd** Vector::check_vector(lua_State* L, int idx){
-    void* ud = luaL_checkudata(L, idx, vec_metatablename);
-    luaL_argcheck(L, ud != NULL, idx, "vector expected");
-    return (VectorXd**)ud;
-}
-
-double* Vector::get_element(lua_State* L){
-    VectorXd** v = check_vector(L);
-    int index = luaL_checkinteger(L, 2);
-    luaL_argcheck(L, 0 <= index && index < (*(*v)).size(), 2, "index out of range");
-    return &(*(*v))[index];
+double* Vector::get_element(lua_State* L, const char* name){
+    if(name == MatVec::rowvec_metatablename){
+        RowVectorXd** v = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename);
+        int index = luaL_checkinteger(L, 2);
+        luaL_argcheck(L, 0 <= index && index < (*(*v)).size(), 2, "index out of range");
+        return &(*(*v))[index];
+    }else{
+        VectorXd** v = (VectorXd**)MatVec::check_vector(L);
+        int index = luaL_checkinteger(L, 2);
+        luaL_argcheck(L, 0 <= index && index < (*(*v)).size(), 2, "index out of range");
+        return &(*(*v))[index];
+    }
+    return nullptr;
 }
 
 int Vector::get_vecelem(lua_State* L){
@@ -83,155 +87,228 @@ int Vector::new_vector(lua_State* L){
     }else{
         return luaL_error(L, "Expected more arguments");
     }
-    luaL_getmetatable(L, vec_metatablename);
+    luaL_getmetatable(L, MatVec::vec_metatablename);
     lua_setmetatable(L, -2);
     return 1;
 }
 
 int Vector::free_vector(lua_State* L){
-    VectorXd** v = check_vector(L);
-    std::cout << *v << '\t' << "vector freed" << '\n';
-    delete *v;
+    if(MatVec::isvector(L)){
+        VectorXd** v = (VectorXd**)MatVec::check_vector(L);
+        std::cout << *v << '\t' << "colum vector freed" << '\n';
+        delete *v;
+    }else{
+        RowVectorXd** v = (RowVectorXd**)MatVec::check_vector(L);
+        std::cout << *v << '\t' << "row vector freed" << '\n';
+        delete *v;
+    }
     return 0;
 }
 
 int Vector::add_vectors(lua_State* L){
-    VectorXd** a = check_vector(L);
-    VectorXd** b = check_vector(L, 2);
-
-    if((*(*a)).size() != (*(*b)).size())
-        return luaL_error(L, "Vector sizes are not the same");
-
-    VectorXd** v = (VectorXd**)lua_newuserdata(L, sizeof(VectorXd*));
-    *v = new VectorXd((*(*a)) + (*(*b)));
-
-    luaL_getmetatable(L, vec_metatablename);
-    lua_setmetatable(L, -2);
-
+    if(MatVec::isvector(L, MatVec::vec_metatablename, 2)){
+        VectorXd** a = (VectorXd**)MatVec::check_vector(L);
+        VectorXd** b = (VectorXd**)MatVec::check_vector(L, MatVec::vec_metatablename, 2);
+        
+        if((*(*a)).size() != (*(*b)).size())
+            return luaL_error(L, "Vector sizes are not the same");
+        
+        auto r = VectorXd((*(*a)) + (*(*b)));
+        MatVec::alloc_vector(L, &r);
+    }else{
+        RowVectorXd** a = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename);
+        RowVectorXd** b = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename, 2);
+        
+        if((*(*a)).size() != (*(*b)).size())
+            return luaL_error(L, "Vector sizes are not the same");
+        
+        auto r = RowVectorXd((*(*a)) + (*(*b)));
+        MatVec::alloc_vector(L, &r, MatVec::rowvec_metatablename);
+    }
     return 1;
 }
 
 int Vector::sub_vectors(lua_State* L){
-    VectorXd** a = check_vector(L);
-    VectorXd** b = check_vector(L, 2);
-
-    if((*(*a)).size() != (*(*b)).size())
+    if(MatVec::isvector(L, MatVec::vec_metatablename, 2)){
+        VectorXd** a = (VectorXd**)MatVec::check_vector(L);
+        VectorXd** b = (VectorXd**)MatVec::check_vector(L, MatVec::vec_metatablename, 2);
+        
+        if((*(*a)).size() != (*(*b)).size())
             return luaL_error(L, "Vector sizes are not the same");
-
-    VectorXd** v = (VectorXd**)lua_newuserdata(L, sizeof(VectorXd*));
-
-    *v = new VectorXd((*(*a)) - (*(*b)));
-    luaL_getmetatable(L, vec_metatablename);
-    lua_setmetatable(L, -2);
+        
+        auto r = VectorXd((*(*a)) - (*(*b)));
+        MatVec::alloc_vector(L, &r);
+    }else{
+        RowVectorXd** a = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename);
+        RowVectorXd** b = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename, 2);
+        
+        if((*(*a)).size() != (*(*b)).size())
+            return luaL_error(L, "Vector sizes are not the same");
+        
+        auto r = RowVectorXd((*(*a)) - (*(*b)));
+        MatVec::alloc_vector(L, &r, MatVec::rowvec_metatablename);
+    }
     return 1;
 }
 
 int Vector::mul_vector(lua_State* L){
-    double a;
-    VectorXd** v;
     if(lua_isnumber(L,1)){
-        a = luaL_checknumber(L, 1);
-        v = check_vector(L, 2);
+        //number * vector = vector
+        if(MatVec::isvector(L, MatVec::vec_metatablename, 2)){
+            double a = luaL_checknumber(L, 1);
+            VectorXd** v = (VectorXd**)MatVec::check_vector(L, MatVec::vec_metatablename, 2);
+            auto res = VectorXd(a * (*(*v)));
+            MatVec::alloc_vector(L, &res);
+        }else{
+            double a = luaL_checknumber(L, 1);
+            RowVectorXd** v = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename, 2);
+            auto res = RowVectorXd(a * (*(*v)));
+            MatVec::alloc_vector(L, &res, MatVec::rowvec_metatablename);
+        }
+        return 1;
     }else if(lua_isnumber(L, 2)){
-        a = luaL_checknumber(L, 2);
-        v = check_vector(L);
-    }else{
-        v = Vector::check_vector(L, 1);
-        MatrixXd** m = check_matrix(L, 2);
-        if((*(*v)).cols() == (*(*m)).rows()){
-            VectorXd** r = (VectorXd**)lua_newuserdata(L, sizeof(VectorXd*));
-            *r = new VectorXd((*(*v)) * (*(*m)));
-            luaL_getmetatable(L, Vector::vec_metatablename);
-            lua_setmetatable(L, -2);
+        //vector * number = vector
+        if(MatVec::isvector(L)){//???
+            VectorXd** v = (VectorXd**)MatVec::check_vector(L);
+            double a = luaL_checknumber(L, 2);
+            auto res = VectorXd(a * (*(*v)));
+            MatVec::alloc_vector(L, &res);
+        }else{
+            RowVectorXd** v = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename);
+            double a = luaL_checknumber(L, 2);
+            auto res = RowVectorXd(a * (*(*v)));
+            MatVec::alloc_vector(L, &res, MatVec::rowvec_metatablename);
+        }
+        return 1;
+    }else if(MatVec::ismatrix(L, 2)){
+        //rowvector * matrix = rowvector
+        RowVectorXd** rv = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename);
+        MatrixXd** m = MatVec::check_matrix(L, 2);
+        if((*(*rv)).cols() == (*(*m)).rows()){
+            auto res = RowVectorXd((*(*rv)) * (*(*m)));
+            MatVec::alloc_vector(L, &res, MatVec::rowvec_metatablename);
             return 1;
         }else{
             return luaL_error(L, "Matrix columns and Vector rows are not the same");
         }
-    }
-    VectorXd** r = (VectorXd**)lua_newuserdata(L, sizeof(VectorXd*));
-    *r = new VectorXd(a * (*(*v)));
-    luaL_getmetatable(L, vec_metatablename);
-    lua_setmetatable(L, -2);
-    return 1;
-}
-
-int Vector::div_vector(lua_State* L){
-    double a;
-    VectorXd** v;
-    if(lua_isnumber(L,1)){
-        a = luaL_checknumber(L, 1);
-        v = check_vector(L, 2);
+    }else if(MatVec::isvector(L, MatVec::rowvec_metatablename)){//???
+        //row vector * column vector = scalar
+        RowVectorXd** a = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename);
+        VectorXd** b = (VectorXd**)MatVec::check_vector(L, MatVec::vec_metatablename, 2);
+        if((*(*a)).cols() != (*(*b)).rows())
+            return luaL_error(L, "Vector rows and cols are not the same");
+        auto res = (*(*a)) * (*(*b));
+        lua_pushnumber(L, res);
+        return 1;
     }else{
-        a = luaL_checknumber(L, 2);
-        v = check_vector(L);
+        //column vector * row vector = matrix
+        VectorXd** a = (VectorXd**)MatVec::check_vector(L, MatVec::vec_metatablename);
+        RowVectorXd** b = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename, 2);
+        if((*(*a)).rows() != (*(*b)).cols())
+            return luaL_error(L, "Vector rows and cols are not the same");
+        MatrixXd res = (*(*a)) * (*(*b));
+        MatVec::alloc_matrix(L, res);
+        return 1;
     }
-    VectorXd** r = (VectorXd**)lua_newuserdata(L, sizeof(VectorXd*));
-    *r = new VectorXd((1/a) * (*(*v)));
-    luaL_getmetatable(L, vec_metatablename);
-    lua_setmetatable(L, -2);
     return 1;
 }
 
 int Vector::norm_vector(lua_State* L){
-    VectorXd** v = check_vector(L);
-    (*(*v)).normalize();
+    if(MatVec::isvector(L)){
+        VectorXd** v = (VectorXd**)MatVec::check_vector(L);
+        (*(*v)).normalize();
+    }else{
+        RowVectorXd** v = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename);
+        (*(*v)).normalize();
+    }
     return 0;
 }
 
 int Vector::normc_vector(lua_State* L){
-    VectorXd** v = check_vector(L);
-    VectorXd** r = (VectorXd**)lua_newuserdata(L, sizeof(VectorXd*));
-    *r = new VectorXd((*(*v)).normalized());
-    luaL_getmetatable(L, vec_metatablename);
-    lua_setmetatable(L, -2);
+    if(MatVec::isvector(L)){
+        VectorXd** v = (VectorXd**)MatVec::check_vector(L);
+        auto r = (*(*v)).normalized();
+        MatVec::alloc_vector(L, &r);
+    }else{
+        RowVectorXd** v = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename);
+        auto r = (*(*v)).normalized();
+        MatVec::alloc_vector(L, &r, MatVec::rowvec_metatablename);
+    }
     return 0;
 }
 
 int Vector::mag_vector(lua_State* L){
-    VectorXd** v = check_vector(L);
-    lua_pushnumber(L, (*(*v)).norm());
+    if(MatVec::isvector(L)){
+        VectorXd** v = (VectorXd**)MatVec::check_vector(L);
+        lua_pushnumber(L, (*(*v)).norm());
+    }else{
+        RowVectorXd** v = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename);
+        lua_pushnumber(L, (*(*v)).norm());
+    }
     return 1;
 }
 
+// bad argument #-2 to 'dot' (string expected, got nil)
 int Vector::dot_vectors(lua_State* L){
-    VectorXd** a = check_vector(L);
-    VectorXd** b = check_vector(L, 2);
-    if((*(*a)).size() != (*(*b)).size())
-        return luaL_error(L, "Vector sizes are not the same");
-    auto d = (*(*a)).dot(*(*b));
-    lua_pushnumber(L, d);
+    if(MatVec::isvector(L)){
+        VectorXd** a = (VectorXd**)MatVec::check_vector(L);
+        VectorXd** b = (VectorXd**)MatVec::check_vector(L, MatVec::vec_metatablename, 2);
+        if((*(*a)).size() != (*(*b)).size())
+            return luaL_error(L, "Vector sizes are not the same");
+        auto d = (*(*a)).dot(*(*b));
+        lua_pushnumber(L, d);
+    }else{
+        RowVectorXd** a = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename);
+        RowVectorXd** b = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename, 2);
+        if((*(*a)).size() != (*(*b)).size())
+            return luaL_error(L, "Vector sizes are not the same");
+        auto d = (*(*a)).dot(*(*b));
+        lua_pushnumber(L, d);
+    }
     return 1;
 }
 
+// bad argument #-2 to 'cross' (string expected, got nil)
 int Vector::cross_vectors(lua_State* L){
-    VectorXd** a = check_vector(L);
-    VectorXd** b = check_vector(L,2);
-    if((*(*a)).size() != (*(*b)).size() || (*(*a)).size() != 3)
-        return luaL_error(L, "Vector sizes are not the same and they should be 3 dimensions");
-    Eigen::Vector<double, 3> aa, bb;
-    aa = (*(*a));
-    bb = (*(*b));
-    auto v = aa.cross(bb);
-    VectorXd** r = (VectorXd**)lua_newuserdata(L, sizeof(VectorXd*));
-    *r = new VectorXd(v);
-    luaL_getmetatable(L, vec_metatablename);
-    lua_setmetatable(L, -2);
+    if(MatVec::isvector(L)){
+        VectorXd** a = (VectorXd**)MatVec::check_vector(L);
+        VectorXd** b = (VectorXd**)MatVec::check_vector(L, MatVec::vec_metatablename, 2);
+        if((*(*a)).size() != (*(*b)).size() || (*(*a)).size() != 3)
+            return luaL_error(L, "Vector sizes are not the same and they should be 3 dimensions");
+        Eigen::Vector<double, 3> aa, bb;
+        aa = (*(*a));
+        bb = (*(*b));
+        auto v = aa.cross(bb);
+        MatVec::alloc_vector(L, &v);
+    }else{
+        RowVectorXd** a = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename);
+        RowVectorXd** b = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename, 2);
+        if((*(*a)).size() != (*(*b)).size() || (*(*a)).size() != 3)
+            return luaL_error(L, "Vector sizes are not the same and they should be 3 dimensions");
+        Eigen::Vector<double, 3> aa, bb;
+        aa = (*(*a));
+        bb = (*(*b));
+        auto v = aa.cross(bb);
+        MatVec::alloc_vector(L, &v, MatVec::rowvec_metatablename);
+    }
     return 1;
 }
 
 int Vector::T_vector(lua_State* L){
-    VectorXd** a = check_vector(L);
-    VectorXd** r = (VectorXd**)lua_newuserdata(L, sizeof(VectorXd*));
-    *r = new VectorXd((*(*a)).size());
-    (*(*r)) = (*(*a)).transpose();
-    luaL_getmetatable(L, vec_metatablename);
-    lua_setmetatable(L, -2);
+    if(MatVec::isvector(L)){
+        VectorXd** a = (VectorXd**)MatVec::check_vector(L);
+        auto r = RowVectorXd((*(*a)).transpose());
+        MatVec::alloc_vector(L, &r, MatVec::rowvec_metatablename);
+    }else{
+        RowVectorXd** a = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename);
+        auto r = VectorXd((*(*a)).transpose());
+        MatVec::alloc_vector(L, &r, MatVec::vec_metatablename);
+    }
     return 1;
 }
 
 int Vector::type_vector(lua_State* L){
-    VectorXd** a = check_vector(L);
-    if((*(*a)).cols() == 1){
+    if(MatVec::isvector(L)){
         lua_pushstring(L, "column vector");
     }else{
         lua_pushstring(L, "row vector");
@@ -240,35 +317,61 @@ int Vector::type_vector(lua_State* L){
 }
 
 int Vector::get_vecsize(lua_State* L){
-    VectorXd** v = check_vector(L);
-    lua_pushinteger(L, (*(*v)).size());
+    if(MatVec::isvector(L)){
+        VectorXd** v = (VectorXd**)MatVec::check_vector(L);
+        lua_pushinteger(L, (*(*v)).size());
+    }else{
+        RowVectorXd** v = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename);
+        lua_pushinteger(L, (*(*v)).size());
+    }
     return 1;
 }
 
+// bad argument #-1 to 'eq' (string expected, got nil)
 int Vector::eq_vectors(lua_State* L){
-    VectorXd** a = check_vector(L);
-    VectorXd** b = check_vector(L, 2);
-    lua_pushboolean(L, (*(*a)) == (*(*b)));
+    if(MatVec::isvector(L)){
+        VectorXd** a = (VectorXd**)MatVec::check_vector(L);
+        VectorXd** b = (VectorXd**)MatVec::check_vector(L, MatVec::vec_metatablename, 2);
+        lua_pushboolean(L, (*(*a)) == (*(*b)));
+    }else{
+        RowVectorXd** a = (RowVectorXd**)MatVec::check_vector(L);
+        RowVectorXd** b = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename, 2);
+        lua_pushboolean(L, (*(*a)) == (*(*b)));
+    }
     return 1;
 }
 
-int Vector::unm_vectors(lua_State* L){
-    VectorXd** a = check_vector(L);
-    VectorXd** r = (VectorXd**)lua_newuserdata(L, sizeof(VectorXd*));
-    *r = new VectorXd((*(*a)));
-    (*(*r)) = -(*(*r));
-    luaL_getmetatable(L, vec_metatablename);
-    lua_setmetatable(L, -2);
+int Vector::unm_vector(lua_State* L){
+    //I dont know why should be index 2 but works
+    if(MatVec::isvector(L, MatVec::vec_metatablename, 2)){
+    // if(MatVec::isvector(L)){
+        VectorXd** a = (VectorXd**)MatVec::check_vector(L);
+        VectorXd res = -(*(*a));
+        MatVec::alloc_vector(L, &res, MatVec::vec_metatablename);
+    }else{
+        RowVectorXd** a = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename);
+        RowVectorXd res = -(*(*a));
+        MatVec::alloc_vector(L, &res, MatVec::rowvec_metatablename);
+    }
     return 1;
 }
 
 int Vector::vector_tostring(lua_State* L){
-    VectorXd** v = check_vector(L);
-    std::ostringstream vosb;
-    vosb << (*(*v));
-    std::string vstr = vosb.str();
-    // std::replace(vstr.begin(), vstr.end(), '\n', ',');
-    // lua_pushfstring(L, "{ %s }", vstr.c_str());
-    lua_pushfstring(L, "%s", vstr.c_str());
+    if(MatVec::isvector(L)){
+        VectorXd** v = (VectorXd**)MatVec::check_vector(L);
+        std::ostringstream vosb;
+        vosb << (*(*v));
+        std::string vstr = vosb.str();
+        lua_pushfstring(L, "[\n%s\n]", vstr.c_str());
+        // lua_pushfstring(L, "%s", vstr.c_str());
+    }else{
+        RowVectorXd** v = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename);
+        std::ostringstream vosb;
+        vosb << (*(*v));
+        std::string vstr = vosb.str();
+        // std::replace(vstr.begin(), vstr.end(), '\n', ',');
+        lua_pushfstring(L, "[ %s ]", vstr.c_str());
+        // lua_pushfstring(L, "%s", vstr.c_str());
+    }
     return 1;
 }

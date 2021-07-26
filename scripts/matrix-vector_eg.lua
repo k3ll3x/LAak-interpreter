@@ -23,7 +23,16 @@ c = vec(t)
 print(c)
 
 -- vector arithmetic functions
-a = ( -a + b - ( c * math.pi / 3 ) ) * 3
+-- a = ( -a + b - ( c * math.pi / 3 ) ) * 3
+print("arithmetic")
+print(b+b)
+print(-b)
+print(3*b)
+print(b*3)
+print(b:t() * matrix.new(4,4,"i"))
+print(b:t() * b)
+print(b * b:t())
+
 print(a)
 
 -- normalize a vector
