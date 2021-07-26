@@ -1,27 +1,32 @@
 #include "LuaHandler.h"
 
 LuaHandler::LuaHandler(){
-    this->L = luaL_newstate();
-    luaL_openlibs(this->L);
+    L = luaL_newstate();
+    luaL_openlibs(L);
+
+    //custom print to redirect output
+    LuaUtilLib::register_luautillib(L);
 
     //register vector methods
     LA::register_la(L);
 }
 
 LuaHandler::~LuaHandler(){
-    lua_close(this->L);
+    lua_close(L);
 }
 
 bool LuaHandler::check_lua(int r){
     if(r != LUA_OK){
-        std::string errormsg = lua_tostring(L, -1);
-        std::cout << errormsg << '\n';
-        return false;
+        errmsg = lua_tostring(L, -1);
+        return true;
+    }else{
+        out = LuaUtilLib::out;
+        LuaUtilLib::out = "";
     }
-    return true;
+    return false;
 }
 
-void LuaHandler::do_string(std::string input){
-    int r = luaL_dostring(this->L, input.c_str());
-    LuaHandler::check_lua(r);
+bool LuaHandler::do_string(std::string input){
+    int r = luaL_dostring(L, input.c_str());
+    return LuaHandler::check_lua(r);
 }

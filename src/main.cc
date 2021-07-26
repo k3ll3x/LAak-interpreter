@@ -1,10 +1,11 @@
 #include "LuaHandler.h"
 
-int main(int argc, char** argv){   
+int main(int argc, char** argv){
     auto lua_hndl = LuaHandler();
 
     if(argc > 1){
-        lua_hndl.do_string("dofile(\"" + std::string(argv[1]) + "\")");
+        if(lua_hndl.do_string("dofile(\"" + std::string(argv[1]) + "\")"))
+            std::cout << lua_hndl.errmsg << '\n';
     }
 
     std::string input;
@@ -12,7 +13,9 @@ int main(int argc, char** argv){
         getline(std::cin, input);
         if(input == "quit")
             break;
-        lua_hndl.do_string(input);
+        if(lua_hndl.do_string(input))
+            std::cout << lua_hndl.errmsg << '\n';
+        std::cout << lua_hndl.out;
     }
 
     return 0;

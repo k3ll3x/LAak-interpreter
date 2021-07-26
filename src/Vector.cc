@@ -126,7 +126,7 @@ int Vector::free_vector(lua_State* L){
         std::cout << *v << '\t' << "colum vector freed" << '\n';
         delete *v;
     }else{
-        RowVectorXd** v = (RowVectorXd**)MatVec::check_vector(L);
+        RowVectorXd** v = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename);
         std::cout << *v << '\t' << "row vector freed" << '\n';
         delete *v;
     }

@@ -110,7 +110,7 @@ int Matrix::cols_matrix(lua_State* L){
     return 1;
 }
 
-int Matrix::cols_matrix(lua_State* L){
+int Matrix::rows_matrix(lua_State* L){
     MatrixXd** m = MatVec::check_matrix(L);
     if(lua_checkstack(L, 1)){
         lua_pushinteger(L, (*(*m)).rows());
@@ -150,7 +150,7 @@ int Matrix::adjd_matrix(lua_State* L){
     return 1;
 }
 
-int sum_matrix(lua_State* L){
+int Matrix::sum_matrix(lua_State* L){
     MatrixXd** m = MatVec::check_matrix(L);
     if(lua_checkstack(L, 1)){
         lua_pushinteger(L, (*(*m)).sum());
@@ -160,7 +160,7 @@ int sum_matrix(lua_State* L){
     return 1;
 }
 
-int prod_matrix(lua_State* L){
+int Matrix::prod_matrix(lua_State* L){
     MatrixXd** m = MatVec::check_matrix(L);
     if(lua_checkstack(L, 1)){
         lua_pushinteger(L, (*(*m)).prod());
@@ -170,7 +170,7 @@ int prod_matrix(lua_State* L){
     return 1;
 }
 
-int mean_matrix(lua_State* L){
+int Matrix::mean_matrix(lua_State* L){
     MatrixXd** m = MatVec::check_matrix(L);
     if(lua_checkstack(L, 1)){
         lua_pushinteger(L, (*(*m)).mean());
@@ -180,7 +180,7 @@ int mean_matrix(lua_State* L){
     return 1;
 }
 
-int mincoeff_matrix(lua_State* L){
+int Matrix::mincoeff_matrix(lua_State* L){
     MatrixXd** m = MatVec::check_matrix(L);
     if(lua_checkstack(L, 1)){
         lua_pushinteger(L, (*(*m)).minCoeff());
@@ -190,7 +190,7 @@ int mincoeff_matrix(lua_State* L){
     return 1;
 }
 
-int maxcoeff_matrix(lua_State* L){
+int Matrix::maxcoeff_matrix(lua_State* L){
     MatrixXd** m = MatVec::check_matrix(L);
     if(lua_checkstack(L, 1)){
         lua_pushinteger(L, (*(*m)).maxCoeff());
@@ -200,7 +200,7 @@ int maxcoeff_matrix(lua_State* L){
     return 1;
 }
 
-int trace_matrix(lua_State* L){
+int Matrix::trace_matrix(lua_State* L){
     MatrixXd** m = MatVec::check_matrix(L);
     if(lua_checkstack(L, 1)){
         lua_pushinteger(L, (*(*m)).trace());

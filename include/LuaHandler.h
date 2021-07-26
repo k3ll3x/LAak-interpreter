@@ -18,6 +18,7 @@ extern "C" {
 #endif
 
 #include "LA.h"
+#include "LuaUtilLib.h"
 
 class LuaHandler {
 private:
@@ -27,5 +28,7 @@ private:
 public:
     LuaHandler();
     ~LuaHandler();
-    void do_string(std::string input);
+    bool do_string(std::string input);
+    std::string errmsg;
+    std::string out;
 };
