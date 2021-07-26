@@ -10,6 +10,10 @@ vec = vector.new
 a = vec(4)
 print(a)
 
+for i=0, a:size()-1 do
+    a[i] = math.random()
+end
+
 -- vector created with multiple arguments
 b = vec(1,2,3,4)
 print(b)
@@ -29,6 +33,7 @@ print(b+b)
 print(-b)
 print(3*b)
 print(b*3)
+
 print(b:t() * matrix.new(4,4,"i"))
 print(b:t() * b)
 print(b * b:t())
@@ -48,6 +53,7 @@ print(a:dot(c))
 -- cross product
 v = vector.new(1,2,3)
 w = vector.new(0,1,2)
+io.read()
 print(v:cross(w))
 
 -- change vector value with index and get value at index with k method
