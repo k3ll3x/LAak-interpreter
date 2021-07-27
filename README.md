@@ -160,7 +160,6 @@ print(C:trace())
 
 #### Garbage Collection and Memory allocation
 - Create a list of of allocated objects for further usage and disposal
-- Fix RowVector `__gc` method it is never called
 
 #### Integrate the following libraries
 - RtAudio
