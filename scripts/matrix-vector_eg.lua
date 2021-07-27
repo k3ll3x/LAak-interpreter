@@ -1,3 +1,5 @@
+-- Vector
+
 -- constructors
 vec = vector.new
 v = vec(1,2,3)
@@ -43,3 +45,66 @@ v_row = v:t() * M
 
 -- Compare
 print(v == w)
+
+-- Matrix
+
+-- constructors
+mat = matrix.new
+
+-- 3x3 matrix initialized with 0's
+A = mat(3,3)
+
+-- 3x3 identity matrix
+B = mat(3,3,"i")
+
+-- set all to given value
+C = mat(4,4,math.random())
+
+-- index
+-- set values
+A:ij(0,0,math.random())
+A:rc(0,1,math.random())
+
+-- get values
+print(A:ij(0,0))
+print(A:rc(0,1))
+
+-- matrix methods
+print(C:size())
+print(C:cols())
+print(B:rows())
+
+-- A transposed
+At = A:transpose()
+At = A:t()
+
+-- Transpose C in place
+C:transposed()
+C:td()
+
+-- Conjugate
+print(B:conjugate())
+print(B:conj())
+
+-- Adjoint
+print(A:adjoint())
+print(A:adj())
+
+-- Adjoint in place
+A:adjointed()
+A:adjd()
+
+-- Basic arithmetic reduction operations
+print(C:sum())
+print(C:prod())
+print(C:mean())
+
+-- min coefficient
+print(C:minCoeff())
+print(C:minc())
+
+-- max coefficient
+print(C:maxCoeff())
+print(C:maxc())
+
+print(C:trace())
