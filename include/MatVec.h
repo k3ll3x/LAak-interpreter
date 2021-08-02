@@ -21,6 +21,11 @@ typedef Eigen::RowVector<double, Eigen::Dynamic> RowVectorXd;
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> MatrixXd;
 #endif
 
+#ifndef MAP
+#define MAP
+#include <map>
+#endif
+
 #ifndef MATVEC
 #define MATVEC
 // namespace for the shared functions between Matrix and Vector

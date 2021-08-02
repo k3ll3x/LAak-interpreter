@@ -13,9 +13,11 @@ int main(int argc, char** argv){
         getline(std::cin, input);
         if(input == "quit")
             break;
-        if(lua_hndl.do_string(input))
+        if(!lua_hndl.do_string(input)){
             std::cout << lua_hndl.errmsg << '\n';
-        std::cout << lua_hndl.out;
+        }else{
+            std::cout << lua_hndl.out;
+        }
     }
 
     return 0;

@@ -6,6 +6,10 @@ public:
 private:
     inline static const char* identity = "i";
 
+    // inline static const std::map<std::string, std::string> doc_list = {};
+
+    // static int doc_matrix(lua_State* L);
+
     static int new_matrix(lua_State* L);
     static int ij_matrix(lua_State* L);
     static int get_matsize(lua_State* L);
@@ -59,6 +63,7 @@ private:
     };
 
     inline static const luaL_Reg matrix_functions[] = {
+        // { "doc", doc_matrix },
         { "new", new_matrix },
         { "__gc", free_matrix },
         { "__add", add_matrix },

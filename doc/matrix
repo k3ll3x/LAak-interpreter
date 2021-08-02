@@ -1,0 +1,13 @@
+Matrix Documentation
+
+list
+
+new, index, 
+
+new
+
+Creates and allocates a new matrix object the constructor can take different parameters:
+matrix.new(int, int)        Takes row size and column size, initalizes values with 0
+matrix.new(int, int, "i")   Same as before, but creates a identity matrix if it is a square matrix
+matrix.new(int, int, float) Same as before, but creates a matrix with its values initalized with the 3rd parameter
+

@@ -18,12 +18,12 @@ LuaHandler::~LuaHandler(){
 bool LuaHandler::check_lua(int r){
     if(r != LUA_OK){
         errmsg = lua_tostring(L, -1);
-        return true;
+        return false;
     }else{
         out = LuaUtilLib::out;
         LuaUtilLib::out = "";
     }
-    return false;
+    return true;
 }
 
 bool LuaHandler::do_string(std::string input){

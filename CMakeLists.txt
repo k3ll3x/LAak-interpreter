@@ -19,13 +19,18 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/lua/include
 )
 
-add_executable(laak ${SOURCES})
-
-#libraries
+#LUA
 # set (CMAKE_SHARED_LINKER_FLAGS "")
 set(LUA ${CMAKE_CURRENT_SOURCE_DIR}/lua/lib/liblua.a)
 
-target_link_libraries(laak ${LUA} ${EIGENLIB} ${CMAKE_DL_LIBS})
+add_executable(ilaak ${SOURCES})
+target_link_libraries(ilaak ${LUA} ${EIGENLIB} ${CMAKE_DL_LIBS})
+
+#laaklib
+add_library(laak STATIC ${SOURCES})
+target_link_libraries(laak PUBLIC ${LUA} ${EIGENLIB} ${CMAKE_DL_LIBS})
+target_include_directories(laak PUBLIC include PRIVATE src)
+target_include_directories(laak PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/lua/include)
 
 #threads
 # set(THREADS_PREFER_PTHREAD_FLAG ON)
