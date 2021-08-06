@@ -9,6 +9,9 @@ LuaHandler::LuaHandler(){
 
     //register vector methods
     LA::register_la(L);
+
+    //register window methods
+    WindowMgr::register_window(L);
 }
 
 LuaHandler::~LuaHandler(){

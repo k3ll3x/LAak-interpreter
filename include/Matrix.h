@@ -2,6 +2,8 @@
 
 class Matrix {
 public:
+    Matrix() = delete;
+    ~Matrix() = delete;
     static void register_matrix(lua_State* L);
 private:
     inline static const char* identity = "i";

@@ -2,6 +2,8 @@
 
 class Vector {
 public:
+    Vector() = delete;
+    ~Vector() = delete;
     static void register_vector(lua_State* L);
 private:
     static double* get_element(lua_State* L, const char* name = MatVec::vec_metatablename);

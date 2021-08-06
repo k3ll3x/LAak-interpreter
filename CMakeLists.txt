@@ -17,14 +17,30 @@ file(GLOB SOURCES "src/*.cc")
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/lua/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/imgui
 )
+
+#imgui
+set(IMGUI_SRC
+    ${IMGUI_SRC}
+    ${CMAKE_CURRENT_SOURCE_DIR}/imgui/imgui.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/imgui/imgui_demo.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/imgui/imgui_draw.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/imgui/imgui_tables.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/imgui/imgui_widgets.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/imgui/backends/imgui_impl_glfw.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/imgui/backends/imgui_impl_opengl3.cpp
+)
+
+set (CMAKE_SHARED_LINKER_FLAGS "-DIMGUI_IMPL_OPENGL_LOADER_GLEW,`pkg-config --static --libs glfw3`,`pkg-config --cflags glfw3`")
+set(WINLIB GL glfw GLEW)
 
 #LUA
 # set (CMAKE_SHARED_LINKER_FLAGS "")
 set(LUA ${CMAKE_CURRENT_SOURCE_DIR}/lua/lib/liblua.a)
 
-add_executable(ilaak ${SOURCES})
-target_link_libraries(ilaak ${LUA} ${EIGENLIB} ${CMAKE_DL_LIBS})
+add_executable(ilaak ${SOURCES} ${IMGUI_SRC})
+target_link_libraries(ilaak ${LUA} ${EIGENLIB} ${CMAKE_DL_LIBS} ${WINLIB})
 
 #laaklib
 add_library(laak STATIC ${SOURCES})
