@@ -22,6 +22,8 @@ private:
     static int mul_matrix(lua_State* L);
     static int T_matrix(lua_State* L);
     static int Td_matrix(lua_State* L);
+    static int inverse_matrix(lua_State* L);
+    static int det_matrix(lua_State* L);
     static int conj_matrix(lua_State* L);
     static int adj_matrix(lua_State* L);
     static int adjd_matrix(lua_State* L);
@@ -47,6 +49,10 @@ private:
         { "t", T_matrix },
         { "transposed", Td_matrix },
         { "td", Td_matrix },
+        { "inverse", inverse_matrix },
+        { "inv", inverse_matrix },
+        { "determinant", det_matrix },
+        { "det", det_matrix },
         { "conjugate", conj_matrix },
         { "conj", conj_matrix },
         { "adjoint", adj_matrix },
