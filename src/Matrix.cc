@@ -39,6 +39,7 @@ int Matrix::new_matrix(lua_State* L){
                 (*(*m)).fill(val);
             }else if(lua_isstring(L, 3)){
                 if(strcmp(luaL_checkstring(L, 3), identity) == 0 && rows == cols){
+                    (*(*m)).fill(0.0);
                     for(int i = 0; i < cols; i++){
                         (*(*m))(i,i) = 1.0;
                     }
