@@ -163,6 +163,18 @@ int Matrix::adjd_matrix(lua_State* L){
     return 1;
 }
 
+int Matrix::trilow_matrix(lua_State* L){
+    MatrixXd** m = MatVec::check_matrix(L);
+    MatVec::alloc_matrix(L, (*(*m)).triangularView<Eigen::Lower>());
+    return 1;
+}
+
+int Matrix::triup_matrix(lua_State* L){
+    MatrixXd** m = MatVec::check_matrix(L);
+    MatVec::alloc_matrix(L, (*(*m)).triangularView<Eigen::Upper>());
+    return 1;
+}
+
 int Matrix::sum_matrix(lua_State* L){
     MatrixXd** m = MatVec::check_matrix(L);
     if(lua_checkstack(L, 1)){

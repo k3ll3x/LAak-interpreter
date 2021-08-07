@@ -26,10 +26,10 @@ class LuaHandler {
 private:
     lua_State* L;
     bool check_lua(int r);
+    void register_mtables(lua_State* L);
 
 public:
     LuaHandler();
-    //other constructor to get window and other stuff
     ~LuaHandler();
     bool do_string(std::string input);
     std::string errmsg;

@@ -1,10 +1,7 @@
 #include "LuaHandler.h"
 
-LuaHandler::LuaHandler(){
-    L = luaL_newstate();
-    luaL_openlibs(L);
-
-    //custom print to redirect output
+void LuaHandler::register_mtables(lua_State* L){
+    //custom print to redirect output and other utils
     LuaUtilLib::register_luautillib(L);
 
     //register vector methods
@@ -12,6 +9,12 @@ LuaHandler::LuaHandler(){
 
     //register window methods
     WindowMgr::register_window(L);
+}
+
+LuaHandler::LuaHandler(){
+    L = luaL_newstate();
+    luaL_openlibs(L);
+    register_mtables(L);
 }
 
 LuaHandler::~LuaHandler(){

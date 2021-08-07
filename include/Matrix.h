@@ -27,6 +27,8 @@ private:
     static int conj_matrix(lua_State* L);
     static int adj_matrix(lua_State* L);
     static int adjd_matrix(lua_State* L);
+    static int trilow_matrix(lua_State* L);
+    static int triup_matrix(lua_State* L);
     static int sum_matrix(lua_State* L);
     static int prod_matrix(lua_State* L);
     static int mean_matrix(lua_State* L);
@@ -59,6 +61,10 @@ private:
         { "adj", adj_matrix },
         { "adjointed", adjd_matrix },
         { "adjd", adjd_matrix },
+        { "triangularLower", trilow_matrix },
+        { "triLow", trilow_matrix },
+        { "triangularUpper", triup_matrix },
+        { "triUp", triup_matrix },
         { "sum", sum_matrix },
         { "prod", prod_matrix },
         { "mean", mean_matrix },
