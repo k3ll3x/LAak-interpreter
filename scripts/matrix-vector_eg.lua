@@ -82,6 +82,14 @@ At = A:t()
 C:transposed()
 C:td()
 
+-- Inverse Matrix
+print(A:inverse())
+print(A:inv())
+
+-- Matrix determinant
+print(C:determinant())
+print(C:det())
+
 -- Conjugate
 print(B:conjugate())
 print(B:conj())
@@ -93,6 +101,14 @@ print(A:adj())
 -- Adjoint in place
 A:adjointed()
 A:adjd()
+
+-- Triangular Lower
+print(A:triangularLower())
+print(A:triLow())
+
+-- Triangular Upper
+print(A:triangularUpper())
+print(A:triUp())
 
 -- Basic arithmetic reduction operations
 print(C:sum())
