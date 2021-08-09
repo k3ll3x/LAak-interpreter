@@ -160,13 +160,17 @@ print(C:trace())
 
 #### Garbage Collection and Memory allocation
 - Create a list of of allocated objects for further usage and disposal
+- Up and Down arrow keys to reuse entered entries in the interpreter (Inside TETRA SAND engine)
+- Utility for applying function to vector or matrix (Eigen: unaryExpr())
+- Utility for saving images in [Netpbm](https://en.wikipedia.org/wiki/Netpbm)
+- Loading Audio and Images and get Vector and Matrix for data manipulation
 
 #### Integrate the following libraries
 - RtAudio
 - RtMidi
 - OpenGL
 - ImGUI
-- OpenGL
+- OpenCV
 
 Also I am considering to incorporate for the first versions the [OlcPixelGameEngine](https://github.com/OneLoneCoder/olcPixelGameEngine/)
 
