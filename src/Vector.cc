@@ -120,6 +120,7 @@ int Vector::new_vector(lua_State* L){
     return 1;
 }
 
+//need to remove reference -> Address boundary error
 int Vector::free_vector(lua_State* L){
     if(MatVec::isvector(L)){
         VectorXd** v = (VectorXd**)MatVec::check_vector(L);
@@ -289,25 +290,49 @@ int Vector::mag_vector(lua_State* L){
 int Vector::dot_vectors(lua_State* L){
     if(MatVec::isvector(L)){
         VectorXd** a = (VectorXd**)MatVec::check_vector(L);
-        VectorXd** b = (VectorXd**)MatVec::check_vector(L, MatVec::vec_metatablename, 2);
-        if((*(*a)).size() != (*(*b)).size())
-            return luaL_error(L, "Vector sizes are not the same");
-        auto d = (*(*a)).dot(*(*b));
-        if(lua_checkstack(L, 1)){
-            lua_pushnumber(L, d);
+        if(MatVec::isvector(L, MatVec::vec_metatablename, 2)){
+            VectorXd** b = (VectorXd**)MatVec::check_vector(L, MatVec::vec_metatablename, 2);
+            if((*(*a)).size() != (*(*b)).size())
+                return luaL_error(L, "Vector sizes are not the same");
+            auto d = (*(*a)).dot(*(*b));
+            if(lua_checkstack(L, 1)){
+                lua_pushnumber(L, d);
+            }else{
+                return luaL_error(L, MatVec::nospacestack);
+            }
         }else{
-            return luaL_error(L, MatVec::nospacestack);
+            RowVectorXd** b = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename, 2);
+            if((*(*a)).size() != (*(*b)).size())
+                return luaL_error(L, "Vector sizes are not the same");
+            auto d = (*(*a)).dot(*(*b));
+            if(lua_checkstack(L, 1)){
+                lua_pushnumber(L, d);
+            }else{
+                return luaL_error(L, MatVec::nospacestack);
+            }
         }
     }else{
         RowVectorXd** a = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename);
-        RowVectorXd** b = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename, 2);
-        if((*(*a)).size() != (*(*b)).size())
-            return luaL_error(L, "Vector sizes are not the same");
-        auto d = (*(*a)).dot(*(*b));
-        if(lua_checkstack(L, 1)){
-            lua_pushnumber(L, d);
+        if(MatVec::isvector(L, MatVec::vec_metatablename, 2)){
+            VectorXd** b = (VectorXd**)MatVec::check_vector(L, MatVec::vec_metatablename, 2);
+            if((*(*a)).size() != (*(*b)).size())
+                return luaL_error(L, "Vector sizes are not the same");
+            auto d = (*(*a)).dot(*(*b));
+            if(lua_checkstack(L, 1)){
+                lua_pushnumber(L, d);
+            }else{
+                return luaL_error(L, MatVec::nospacestack);
+            }
         }else{
-            return luaL_error(L, MatVec::nospacestack);
+            RowVectorXd** b = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename, 2);
+            if((*(*a)).size() != (*(*b)).size())
+                return luaL_error(L, "Vector sizes are not the same");
+            auto d = (*(*a)).dot(*(*b));
+            if(lua_checkstack(L, 1)){
+                lua_pushnumber(L, d);
+            }else{
+                return luaL_error(L, MatVec::nospacestack);
+            }
         }
     }
     return 1;

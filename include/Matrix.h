@@ -14,6 +14,8 @@ private:
 
     static int new_matrix(lua_State* L);
     static int ij_matrix(lua_State* L);
+    static int row_matrix(lua_State* L);
+    static int col_matrix(lua_State* L);
     static int get_matsize(lua_State* L);
     static int cols_matrix(lua_State* L);
     static int rows_matrix(lua_State* L);
@@ -44,6 +46,8 @@ private:
     inline static const luaL_Reg matrix_methods[] = {
         { "ij", ij_matrix },
         { "rc", ij_matrix },
+        { "row", row_matrix },
+        { "col", col_matrix },
         { "size", get_matsize },
         { "cols", cols_matrix },
         { "rows", rows_matrix },

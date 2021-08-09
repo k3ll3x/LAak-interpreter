@@ -63,10 +63,12 @@ int Matrix::new_matrix(lua_State* L){
     return 1;
 }
 
+//need to remove reference -> Address boundary error
 int Matrix::free_matrix(lua_State* L){
     MatrixXd** m = MatVec::check_matrix(L);
     std::cout << *m << '\t' << "matrix freed" << '\n';
     delete *m;
+    m = nullptr;
     return 0;
 }
 
@@ -82,6 +84,50 @@ int Matrix::ij_matrix(lua_State* L){
         }
         if(lua_checkstack(L, 1)){
             lua_pushnumber(L, (*(*m))(i,j));
+        }else{
+            return luaL_error(L, MatVec::nospacestack);
+        }
+    }else{
+        return luaL_error(L, "index out of range");
+    }
+    return 1;
+}
+
+int Matrix::row_matrix(lua_State* L){
+    int n = lua_gettop(L);
+    MatrixXd** m = MatVec::check_matrix(L);
+    int r = luaL_checkinteger(L, 2);
+    if(r >= 0 && r < (*(*m)).rows()){
+        if(n > 2){
+            RowVectorXd** v = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename, 3);
+            (*(*m)).row(r) = (*(*v));
+            return 0;
+        }
+        if(lua_checkstack(L, 1)){
+            auto mr = (*(*m)).row(r);
+            MatVec::alloc_vector(L, &mr, MatVec::rowvec_metatablename);
+        }else{
+            return luaL_error(L, MatVec::nospacestack);
+        }
+    }else{
+        return luaL_error(L, "index out of range");
+    }
+    return 1;
+}
+
+int Matrix::col_matrix(lua_State* L){
+    int n = lua_gettop(L);
+    MatrixXd** m = MatVec::check_matrix(L);
+    int c = luaL_checkinteger(L, 2);
+    if(c >= 0 && c < (*(*m)).cols()){
+        if(n > 2){
+            VectorXd** v = (VectorXd**)MatVec::check_vector(L, MatVec::vec_metatablename, 3);
+            (*(*m)).col(c) = (*(*v));
+            return 0;
+        }
+        if(lua_checkstack(L, 1)){
+            auto mc = (*(*m)).col(c);
+            MatVec::alloc_vector(L, &mc, MatVec::vec_metatablename);
         }else{
             return luaL_error(L, MatVec::nospacestack);
         }
@@ -262,7 +308,6 @@ int Matrix::mul_matrix(lua_State* L){
     double s;
     MatrixXd** a;
     MatrixXd** b;
-    VectorXd** v;
     if(lua_isnumber(L,1)){
         s = luaL_checknumber(L, 1);
         a = MatVec::check_matrix(L, 2);
@@ -284,7 +329,7 @@ int Matrix::mul_matrix(lua_State* L){
         }
     }else{
         a = MatVec::check_matrix(L);
-        v = (VectorXd**)MatVec::check_vector(L, MatVec::vec_metatablename, 2);
+        VectorXd** v = (VectorXd**)MatVec::check_vector(L, MatVec::vec_metatablename, 2);
         if((*(*a)).cols() == (*(*v)).rows()){
             auto r = VectorXd((*(*a)) * (*(*v)));
             MatVec::alloc_vector(L, &r);
