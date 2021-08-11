@@ -100,11 +100,15 @@ int Matrix::row_matrix(lua_State* L){
     if(r >= 0 && r < (*(*m)).rows()){
         if(n > 2){
             RowVectorXd** v = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename, 3);
-            (*(*m)).row(r) = (*(*v));
+            if((*(*v)).size() == (*(*m)).cols()){
+                (*(*m)).row(r) = (*(*v));
+            }else{
+                return luaL_error(L, "Vector size and Matrix columns are not the same");
+            }
             return 0;
         }
         if(lua_checkstack(L, 1)){
-            auto mr = (*(*m)).row(r);
+            auto mr = RowVectorXd((*(*m)).row(r));
             MatVec::alloc_vector(L, &mr, MatVec::rowvec_metatablename);
         }else{
             return luaL_error(L, MatVec::nospacestack);
@@ -122,11 +126,15 @@ int Matrix::col_matrix(lua_State* L){
     if(c >= 0 && c < (*(*m)).cols()){
         if(n > 2){
             VectorXd** v = (VectorXd**)MatVec::check_vector(L, MatVec::vec_metatablename, 3);
-            (*(*m)).col(c) = (*(*v));
+            if((*(*v)).size() == (*(*m)).rows()){
+                (*(*m)).col(c) = (*(*v));
+            }else{
+                return luaL_error(L, "Vector size and Matrix rows are not the same");
+            }
             return 0;
         }
         if(lua_checkstack(L, 1)){
-            auto mc = (*(*m)).col(c);
+            auto mc = VectorXd((*(*m)).col(c));
             MatVec::alloc_vector(L, &mc, MatVec::vec_metatablename);
         }else{
             return luaL_error(L, MatVec::nospacestack);

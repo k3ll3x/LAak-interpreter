@@ -60,6 +60,9 @@ B = mat(3,3,"i")
 -- set all to given value
 C = mat(4,4,math.random())
 
+-- compare
+print(A == B)
+
 -- index
 -- set values
 A:ij(0,0,math.random())
@@ -68,6 +71,18 @@ A:rc(0,1,math.random())
 -- get values
 print(A:ij(0,0))
 print(A:rc(0,1))
+
+-- get Matrix row as row vector
+v = A:row(0)
+
+-- set Matrix row with row vector
+A:row(0, v * math.random())
+
+-- get Matrix column as column vector
+u = A:col(0)
+
+-- set Matrix column with column vector
+A:col(0, u * math.random())
 
 -- matrix methods
 print(C:size())
