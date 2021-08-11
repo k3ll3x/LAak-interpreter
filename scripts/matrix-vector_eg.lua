@@ -6,6 +6,13 @@ v = vec(1,2,3)
 w = vec({0,1,3})
 u = vec(3)
 
+-- Linearly spaced vector, size 10
+y = vector.linspace(10, 4, 8)
+
+-- Random vector
+x = vector.random(20)
+x = vector.rand(20)
+
 -- index
 u[0] = math.pi
 u[1] = math.cos(math.pi)
@@ -172,5 +179,3 @@ print(C:maxCoeff())
 print(C:max())
 
 print(C:trace())
-
-

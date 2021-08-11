@@ -32,7 +32,7 @@ Activation_ReLU = {
 }
 
 Activation_ReLU.forward = function(self, inputs)
-	self.out = 
+	self.out = inputs:max()
 end
 
 ----------------------------
@@ -54,10 +54,4 @@ layer1:forward(X)
 print(layer1.out)
 layer2:forward(layer1.out)
 print(layer2.out)
-
-
-
-
-
-
 

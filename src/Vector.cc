@@ -123,6 +123,32 @@ int Vector::new_vector(lua_State* L){
     return 1;
 }
 
+int Vector::linspace_vector(lua_State* L){
+    int n = lua_gettop(L);
+    if(n == 3){
+        unsigned int size = luaL_checkinteger(L, 1);
+        double low = luaL_checknumber(L, 2);
+        double high = luaL_checknumber(L, 3);
+        VectorXd v = VectorXd::LinSpaced(size, low, high);
+        MatVec::alloc_vector(L, &v);
+    }else{
+        return luaL_error(L, "Expected 3 arguments: size, low, high");
+    }
+    return 1;
+}
+
+int Vector::rand_vector(lua_State* L){
+    int n = lua_gettop(L);
+    if(n == 1){
+        unsigned int size = luaL_checkinteger(L, 1);
+        VectorXd v = VectorXd::Random(size);
+        MatVec::alloc_vector(L, &v);
+    }else{
+        return luaL_error(L, "Expected 1 argument: size");
+    }
+    return 1;
+}
+
 //need to remove reference -> Address boundary error
 int Vector::free_vector(lua_State* L){
     if(MatVec::isvector(L)){

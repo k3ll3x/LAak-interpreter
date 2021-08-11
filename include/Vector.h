@@ -14,6 +14,8 @@ private:
     static int dot_vectors(lua_State* l);
     static int cross_vectors(lua_State* l);
     static int T_vector(lua_State* l);
+    static int linspace_vector(lua_State* L);
+    static int rand_vector(lua_State* L);
     static int sum_vector(lua_State* L);
     static int prod_vector(lua_State* L);
     static int mean_vector(lua_State* L);
@@ -64,6 +66,9 @@ private:
 
     inline static const luaL_Reg vector_functions[] = {
         { "new", new_vector },
+        { "linspace", linspace_vector },
+        { "random", rand_vector },
+        { "rand", rand_vector },
         { "__gc", free_vector },
         { "__add", add_vectors },
         { "__sub", sub_vectors },
