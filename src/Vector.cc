@@ -28,12 +28,12 @@ double* Vector::get_element(lua_State* L, const char* name){
     if(strcmp(name, MatVec::vec_metatablename) == 0){
         VectorXd** v = (VectorXd**)MatVec::check_vector(L);
         int index = luaL_checkinteger(L, 2);
-        luaL_argcheck(L, 0 <= index && index < (*(*v)).size(), 2, "index out of range");
+        luaL_argcheck(L, 0 <= index && index < (*(*v)).size(), 2, MatVec::index_out_range);
         return &(*(*v))[index];
     }else{
         RowVectorXd** v = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename);
         int index = luaL_checkinteger(L, 2);
-        luaL_argcheck(L, 0 <= index && index < (*(*v)).size(), 2, "index out of range");
+        luaL_argcheck(L, 0 <= index && index < (*(*v)).size(), 2, MatVec::index_out_range);
         return &(*(*v))[index];
     }
     return nullptr;
@@ -85,7 +85,8 @@ int Vector::new_vector(lua_State* L){
                 (*(*v)).fill(0);
             //create vector with contents of table
             }else if(lua_istable(L,1)){
-                *v = new VectorXd(lua_rawlen(L, 1));
+                unsigned int size = lua_rawlen(L, 1);
+                *v = new VectorXd(size);
                 if(*v == nullptr)
                     return luaL_error(L, MatVec::nomemory);
                 if(lua_checkstack(L, 1)){
@@ -95,6 +96,8 @@ int Vector::new_vector(lua_State* L){
                 }
                 int idx = 0;
                 while (lua_next(L, 1) != 0) {
+                    if(idx >= size)
+                        return luaL_error(L, MatVec::index_out_range);
                     (*(*v))[idx] = luaL_checknumber(L, -1);
                     idx++;
                     lua_pop(L, 1);
@@ -124,11 +127,11 @@ int Vector::new_vector(lua_State* L){
 int Vector::free_vector(lua_State* L){
     if(MatVec::isvector(L)){
         VectorXd** v = (VectorXd**)MatVec::check_vector(L);
-        std::cout << *v << '\t' << "colum vector freed" << '\n';
+        // std::cout << *v << '\t' << "colum vector freed" << '\n';
         delete *v;
     }else{
         RowVectorXd** v = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename);
-        std::cout << *v << '\t' << "row vector freed" << '\n';
+        // std::cout << *v << '\t' << "row vector freed" << '\n';
         delete *v;
     }
     return 0;
@@ -376,6 +379,121 @@ int Vector::T_vector(lua_State* L){
     return 1;
 }
 
+int Vector::sum_vector(lua_State* L){
+    if(MatVec::isvector(L)){
+        VectorXd** a = (VectorXd**)MatVec::check_vector(L);
+        if(lua_checkstack(L, 1)){
+            lua_pushnumber(L, (*(*a)).sum());
+        }else{
+            return luaL_error(L, MatVec::nospacestack);
+        }
+    }else{
+        RowVectorXd** a = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename);
+        if(lua_checkstack(L, 1)){
+            lua_pushnumber(L, (*(*a)).sum());
+        }else{
+            return luaL_error(L, MatVec::nospacestack);
+        }
+    }
+    return 1;
+}
+
+
+int Vector::prod_vector(lua_State* L){
+    if(MatVec::isvector(L)){
+        VectorXd** a = (VectorXd**)MatVec::check_vector(L);
+        if(lua_checkstack(L, 1)){
+            lua_pushnumber(L, (*(*a)).prod());
+        }else{
+            return luaL_error(L, MatVec::nospacestack);
+        }
+    }else{
+        RowVectorXd** a = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename);
+        if(lua_checkstack(L, 1)){
+            lua_pushnumber(L, (*(*a)).prod());
+        }else{
+            return luaL_error(L, MatVec::nospacestack);
+        }
+    }
+    return 1;
+}
+
+int Vector::mean_vector(lua_State* L){
+    if(MatVec::isvector(L)){
+        VectorXd** a = (VectorXd**)MatVec::check_vector(L);
+        if(lua_checkstack(L, 1)){
+            lua_pushnumber(L, (*(*a)).prod());
+        }else{
+            return luaL_error(L, MatVec::nospacestack);
+        }
+    }else{
+        RowVectorXd** a = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename);
+        if(lua_checkstack(L, 1)){
+            lua_pushnumber(L, (*(*a)).prod());
+        }else{
+            return luaL_error(L, MatVec::nospacestack);
+        }
+    }
+    return 1;
+}
+
+int Vector::mincoeff_vector(lua_State* L){
+    if(MatVec::isvector(L)){
+        VectorXd** a = (VectorXd**)MatVec::check_vector(L);
+        if(lua_checkstack(L, 1)){
+            lua_pushnumber(L, (*(*a)).minCoeff());
+        }else{
+            return luaL_error(L, MatVec::nospacestack);
+        }
+    }else{
+        RowVectorXd** a = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename);
+        if(lua_checkstack(L, 1)){
+            lua_pushnumber(L, (*(*a)).minCoeff());
+        }else{
+            return luaL_error(L, MatVec::nospacestack);
+        }
+    }
+    return 1;
+}
+
+int Vector::maxcoeff_vector(lua_State* L){
+    if(MatVec::isvector(L)){
+        VectorXd** a = (VectorXd**)MatVec::check_vector(L);
+        if(lua_checkstack(L, 1)){
+            lua_pushnumber(L, (*(*a)).maxCoeff());
+        }else{
+            return luaL_error(L, MatVec::nospacestack);
+        }
+    }else{
+        RowVectorXd** a = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename);
+        if(lua_checkstack(L, 1)){
+            lua_pushnumber(L, (*(*a)).maxCoeff());
+        }else{
+            return luaL_error(L, MatVec::nospacestack);
+        }
+    }
+    return 1;
+}
+
+int Vector::trace_vector(lua_State* L){
+    if(MatVec::isvector(L)){
+        VectorXd** a = (VectorXd**)MatVec::check_vector(L);
+        if(lua_checkstack(L, 1)){
+            lua_pushnumber(L, (*(*a)).trace());
+        }else{
+            return luaL_error(L, MatVec::nospacestack);
+        }
+    }else{
+        RowVectorXd** a = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename);
+        if(lua_checkstack(L, 1)){
+            lua_pushnumber(L, (*(*a)).trace());
+        }else{
+            return luaL_error(L, MatVec::nospacestack);
+        }
+    }
+    return 1;
+}
+
 int Vector::type_vector(lua_State* L){
     if(MatVec::isvector(L)){
         if(lua_checkstack(L, 1)){
@@ -416,18 +534,22 @@ int Vector::eq_vectors(lua_State* L){
     if(MatVec::isvector(L)){
         VectorXd** a = (VectorXd**)MatVec::check_vector(L);
         VectorXd** b = (VectorXd**)MatVec::check_vector(L, MatVec::vec_metatablename, 2);
-        if(lua_checkstack(L, 1)){
-            lua_pushboolean(L, (*(*a)) == (*(*b)));
-        }else{
-            return luaL_error(L, MatVec::nospacestack);
+        if((*(*a)).size() == (*(*b)).size()){
+            if(lua_checkstack(L, 1)){
+                lua_pushboolean(L, (*(*a)) == (*(*b)));
+            }else{
+                return luaL_error(L, MatVec::nospacestack);
+            }
         }
     }else{
         RowVectorXd** a = (RowVectorXd**)MatVec::check_vector(L);
         RowVectorXd** b = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename, 2);
-        if(lua_checkstack(L, 1)){
-            lua_pushboolean(L, (*(*a)) == (*(*b)));
-        }else{
-            return luaL_error(L, MatVec::nospacestack);
+        if((*(*a)).size() == (*(*b)).size()){
+            if(lua_checkstack(L, 1)){
+                lua_pushboolean(L, (*(*a)) == (*(*b)));
+            }else{
+                return luaL_error(L, MatVec::nospacestack);
+            }
         }
     }
     return 1;

@@ -14,6 +14,12 @@ private:
     static int dot_vectors(lua_State* l);
     static int cross_vectors(lua_State* l);
     static int T_vector(lua_State* l);
+    static int sum_vector(lua_State* L);
+    static int prod_vector(lua_State* L);
+    static int mean_vector(lua_State* L);
+    static int mincoeff_vector(lua_State* L);
+    static int maxcoeff_vector(lua_State* L);
+    static int trace_vector(lua_State* L);
     static int type_vector(lua_State* l);
     static int get_vecsize(lua_State* L);
     static int free_vector(lua_State* L);
@@ -42,6 +48,15 @@ private:
         { "cross", cross_vectors },
         { "transpose", T_vector },
         { "t", T_vector },
+        { "T", T_vector },
+        { "sum", sum_vector },
+        { "prod", prod_vector },
+        { "mean", mean_vector },
+        { "minCoeff", mincoeff_vector },
+        { "min", mincoeff_vector },
+        { "maxCoeff", maxcoeff_vector },
+        { "max", maxcoeff_vector },
+        { "trace", trace_vector },
         { "type", type_vector },
         { "size", get_vecsize },
         { nullptr, nullptr }

@@ -2,38 +2,43 @@
 dim = 1000
 M = matrix.new(dim,dim, 255)
 
+factor = 4
+
 for r=0, M:rows()-1 do
 	for c=0, M:cols()-1 do
-		if r%3 == 0 then
-			if r%5 == 0 then
-				M:rc(r,c,(69*r*c)%255)
+		nr = r * factor
+		nc = c * factor
+		if nr%3 == 0 then
+			if nr%5 == 0 then
+				v = (69+(nr*nc))
+				M:rc(r,c,v%255)
 			else
-				M:rc(r,c,(96*r*c)%255)
+				v = (96+(nr*nc))
+				M:rc(r,c,v%255)
 			end
 		else
-			M:rc(r,c,(33*r*c)%255)
+			v = (33+(r*c))
+			M:rc(r,c,v%255)
 		end
 	end
 end
 
-maxv = M:maxCoeff()
+maxv = 255
 
-img = io.open("yeah.pgm","w")
-img:write("P2\n"..dim.." "..dim.."\n"..maxv.."\n")
+img = io.open("yeah.ppm","w")
+img:write("P3\n"..dim.." "..dim.."\n"..maxv.."\n")
 
 for r=0, M:rows()-1 do
 	for c=0, M:cols()-1 do
-		img:write(M:rc(r,c))
-		if (c < M:cols()-1) then
-			img:write(" ")
-		end
+		nr = r * factor
+		nc = c * factor
+		r = (M:rc(r,c)*3)%255
+		g = (M:rc(r,c)*6)%255
+		b = (M:rc(r,c)*9)%255
+		img:write(r.." "..g.." "..b.." ")
 	end
 	img:write("\n")
 end
 img:close()
 print("Done")
-
-
-
-
 

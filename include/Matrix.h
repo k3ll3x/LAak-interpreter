@@ -7,6 +7,7 @@ public:
     static void register_matrix(lua_State* L);
 private:
     inline static const char* identity = "i";
+    inline static const char* random = "rand";
 
     // inline static const std::map<std::string, std::string> doc_list = {};
 
@@ -53,6 +54,7 @@ private:
         { "rows", rows_matrix },
         { "transpose", T_matrix },
         { "t", T_matrix },
+        { "T", T_matrix },
         { "transposed", Td_matrix },
         { "td", Td_matrix },
         { "inverse", inverse_matrix },
@@ -73,9 +75,9 @@ private:
         { "prod", prod_matrix },
         { "mean", mean_matrix },
         { "minCoeff", mincoeff_matrix },
-        { "minc", mincoeff_matrix },
+        { "min", mincoeff_matrix },
         { "maxCoeff", maxcoeff_matrix },
-        { "maxc", maxcoeff_matrix },
+        { "max", maxcoeff_matrix },
         { "trace", trace_matrix },
         { nullptr, nullptr }
     };

@@ -1,4 +1,4 @@
--- Vector
+-- VECTOR --
 
 -- constructors
 vec = vector.new
@@ -46,7 +46,22 @@ v_row = v:t() * M
 -- Compare
 print(v == w)
 
--- Matrix
+-- Basic arithmetic reduction operations
+print(v:sum())
+print(v:prod())
+print(v:mean())
+
+-- min coefficient
+print(v:minCoeff())
+print(v:min())
+
+-- max coefficient
+print(v:maxCoeff())
+print(v:max())
+
+print(v:trace())
+
+-- MATRIX --
 
 -- constructors
 mat = matrix.new
@@ -59,6 +74,18 @@ B = mat(3,3,"i")
 
 -- set all to given value
 C = mat(4,4,math.random())
+
+-- 3x2 Matrix with random values
+D = mat(3,2,"rand")
+
+-- Create Matrix with table of table
+
+E = mat(
+	{
+		{1,2,3,4},
+		{5,6,7,8}
+	}
+)
 
 -- compare
 print(A == B)
@@ -78,11 +105,17 @@ v = A:row(0)
 -- set Matrix row with row vector
 A:row(0, v * math.random())
 
+-- or with given table
+A:row(1, {3, 6, 9})
+
 -- get Matrix column as column vector
 u = A:col(0)
 
 -- set Matrix column with column vector
 A:col(0, u * math.random())
+
+-- or with given table
+A:col(1, {3, 6, 9})
 
 -- matrix methods
 print(C:size())
@@ -132,10 +165,12 @@ print(C:mean())
 
 -- min coefficient
 print(C:minCoeff())
-print(C:minc())
+print(C:min())
 
 -- max coefficient
 print(C:maxCoeff())
-print(C:maxc())
+print(C:max())
 
 print(C:trace())
+
+

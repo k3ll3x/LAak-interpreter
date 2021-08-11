@@ -27,7 +27,50 @@ int Matrix::new_matrix(lua_State* L){
     }else{
         return luaL_error(L, MatVec::nospacestack);
     }
-    if(n >= 2){
+    if(n == 1){
+        if(lua_istable(L, 1)){
+            int rows = lua_rawlen(L, 1);
+            int cols;
+            bool once = true;
+            if(lua_checkstack(L, 1)){
+                lua_pushnil(L);
+            }else{
+                return luaL_error(L, MatVec::nospacestack);
+            }
+            int row = 0;
+            int col = 0;
+            while (lua_next(L, 1) != 0) {
+                if(lua_istable(L, -1)){
+                    if(once){
+                        once = false;
+                        cols = lua_rawlen(L, -1);
+                        *m = new MatrixXd(rows, cols);
+                        (*(*m)).fill(0);
+                    }
+                    if(lua_checkstack(L, 1)){
+                        lua_pushnil(L);
+                    }else{
+                        return luaL_error(L, MatVec::nospacestack);
+                    }
+                    while (lua_next(L, -2) != 0) {
+                        if(col >= cols){
+                            return luaL_error(L, MatVec::index_out_range);
+                        }
+                        (*(*m))(row, col) = luaL_checknumber(L, -1);
+                        col++;
+                        lua_pop(L, 1);
+                    }                    
+                    row++;
+                    col = 0;
+                }else{
+                    return luaL_error(L, "table of table expected");
+                }
+                lua_pop(L, 1);
+            }
+        }else{
+            return luaL_error(L, "table expected");
+        }
+    }else if(n >= 2){
         int rows = luaL_checkinteger(L, 1);
         int cols = luaL_checkinteger(L, 2);
         *m = new MatrixXd(rows, cols);
@@ -39,10 +82,9 @@ int Matrix::new_matrix(lua_State* L){
                 (*(*m)).fill(val);
             }else if(lua_isstring(L, 3)){
                 if(strcmp(luaL_checkstring(L, 3), identity) == 0 && rows == cols){
-                    (*(*m)).fill(0.0);
-                    for(int i = 0; i < cols; i++){
-                        (*(*m))(i,i) = 1.0;
-                    }
+                    (*(*m)) = MatrixXd::Identity(rows, cols);
+                }else if(strcmp(luaL_checkstring(L, 3), random) == 0){
+                    (*(*m)) = MatrixXd::Random(rows, cols);
                 }else{
                     delete *m;
                     return luaL_error(L, "Must be a square matrix and 3rd argument to \"i\"");
@@ -66,7 +108,7 @@ int Matrix::new_matrix(lua_State* L){
 //need to remove reference -> Address boundary error
 int Matrix::free_matrix(lua_State* L){
     MatrixXd** m = MatVec::check_matrix(L);
-    std::cout << *m << '\t' << "matrix freed" << '\n';
+    // std::cout << *m << '\t' << "matrix freed" << '\n';
     delete *m;
     m = nullptr;
     return 0;
@@ -88,7 +130,7 @@ int Matrix::ij_matrix(lua_State* L){
             return luaL_error(L, MatVec::nospacestack);
         }
     }else{
-        return luaL_error(L, "index out of range");
+        return luaL_error(L, MatVec::index_out_range);
     }
     return 1;
 }
@@ -99,11 +141,31 @@ int Matrix::row_matrix(lua_State* L){
     int r = luaL_checkinteger(L, 2);
     if(r >= 0 && r < (*(*m)).rows()){
         if(n > 2){
-            RowVectorXd** v = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename, 3);
-            if((*(*v)).size() == (*(*m)).cols()){
-                (*(*m)).row(r) = (*(*v));
+            if(lua_istable(L, 3)){
+                unsigned int size = lua_rawlen(L, 3);
+                auto v = RowVectorXd(size);
+                int idx = 0;
+                if(lua_checkstack(L, 1))
+                    lua_pushnil(L);
+                while (lua_next(L, 3) != 0) {
+                    if(idx >= size)
+                        return luaL_error(L, MatVec::index_out_range);
+                    v[idx] = luaL_checknumber(L, -1);
+                    idx++;
+                    lua_pop(L, 1);
+                }
+                if(v.size() == (*(*m)).cols()){
+                    (*(*m)).row(r) = v;
+                }else{
+                    return luaL_error(L, "Vector size and Matrix columns are not the same");
+                }
             }else{
-                return luaL_error(L, "Vector size and Matrix columns are not the same");
+                RowVectorXd** v = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename, 3);
+                if((*(*v)).size() == (*(*m)).cols()){
+                    (*(*m)).row(r) = (*(*v));
+                }else{
+                    return luaL_error(L, "Vector size and Matrix columns are not the same");
+                }
             }
             return 0;
         }
@@ -114,7 +176,7 @@ int Matrix::row_matrix(lua_State* L){
             return luaL_error(L, MatVec::nospacestack);
         }
     }else{
-        return luaL_error(L, "index out of range");
+        return luaL_error(L, MatVec::index_out_range);
     }
     return 1;
 }
@@ -125,11 +187,31 @@ int Matrix::col_matrix(lua_State* L){
     int c = luaL_checkinteger(L, 2);
     if(c >= 0 && c < (*(*m)).cols()){
         if(n > 2){
-            VectorXd** v = (VectorXd**)MatVec::check_vector(L, MatVec::vec_metatablename, 3);
-            if((*(*v)).size() == (*(*m)).rows()){
-                (*(*m)).col(c) = (*(*v));
+            if(lua_istable(L, 3)){
+                unsigned int size = lua_rawlen(L, 3);
+                auto v = VectorXd(size);
+                int idx = 0;
+                if(lua_checkstack(L, 1))
+                    lua_pushnil(L);
+                while (lua_next(L, 3) != 0) {
+                    if(idx >= size)
+                        return luaL_error(L, MatVec::index_out_range);
+                    v[idx] = luaL_checknumber(L, -1);
+                    idx++;
+                    lua_pop(L, 1);
+                }
+                if(v.size() == (*(*m)).rows()){
+                    (*(*m)).col(c) = v;
+                }else{
+                    return luaL_error(L, "Vector size and Matrix rows are not the same");
+                }
             }else{
-                return luaL_error(L, "Vector size and Matrix rows are not the same");
+                VectorXd** v = (VectorXd**)MatVec::check_vector(L, MatVec::vec_metatablename, 3);
+                if((*(*v)).size() == (*(*m)).rows()){
+                    (*(*m)).col(c) = (*(*v));
+                }else{
+                    return luaL_error(L, "Vector size and Matrix rows are not the same");
+                }
             }
             return 0;
         }
@@ -140,7 +222,7 @@ int Matrix::col_matrix(lua_State* L){
             return luaL_error(L, MatVec::nospacestack);
         }
     }else{
-        return luaL_error(L, "index out of range");
+        return luaL_error(L, MatVec::index_out_range);
     }
     return 1;
 }
@@ -291,24 +373,65 @@ int Matrix::trace_matrix(lua_State* L){
 
 int Matrix::add_matrix(lua_State* L){
     MatrixXd** a = MatVec::check_matrix(L);
-    MatrixXd** b = MatVec::check_matrix(L, 2);
 
-    if((*(*a)).size() != (*(*b)).size())
-        return luaL_error(L, "Matrices sizes are not the same");
+    if(MatVec::isvector(L, MatVec::vec_metatablename, 2)){
+        VectorXd** v = (VectorXd**)MatVec::check_vector(L, MatVec::vec_metatablename, 2);
+        if((*(*a)).rows() != (*(*v)).size())
+            return luaL_error(L, "Matrix rows and Vector size are not the same");
+        auto nmat = MatrixXd((*(*a)).rows(), (*(*a)).cols());
+        for(int c = 0; c < (*(*a)).cols(); c++){
+            nmat.col(c) = (*(*a)).col(c) + (*(*v));
+        }
+        MatVec::alloc_matrix(L, nmat);
+    }else if(MatVec::isvector(L, MatVec::rowvec_metatablename, 2)){
+        RowVectorXd** v = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename, 2);
+        if((*(*a)).cols() != (*(*v)).size())
+            return luaL_error(L, "Matrix columns and Vector size are not the same");
+        auto nmat = MatrixXd((*(*a)).rows(), (*(*a)).cols());
+        for(int r = 0; r < (*(*a)).rows(); r++){
+            nmat.row(r) = (*(*a)).row(r) + (*(*v));
+        }
+        MatVec::alloc_matrix(L, nmat);
+    }else{
+        MatrixXd** b = MatVec::check_matrix(L, 2);
 
-    MatVec::alloc_matrix(L, (*(*a)) + (*(*b)));
+        if((*(*a)).size() != (*(*b)).size())
+            return luaL_error(L, "Matrices sizes are not the same");
 
+        MatVec::alloc_matrix(L, (*(*a)) + (*(*b)));
+    }
     return 1;
 }
 
 int Matrix::sub_matrix(lua_State* L){
     MatrixXd** a = MatVec::check_matrix(L);
-    MatrixXd** b = MatVec::check_matrix(L, 2);
-    if((*(*a)).size() != (*(*b)).size())
-        return luaL_error(L, "Matrices sizes are not the same");
 
-    MatVec::alloc_matrix(L, (*(*a)) - (*(*b)));
+    if(MatVec::isvector(L, MatVec::vec_metatablename, 2)){
+        VectorXd** v = (VectorXd**)MatVec::check_vector(L, MatVec::vec_metatablename, 2);
+        if((*(*a)).rows() != (*(*v)).size())
+            return luaL_error(L, "Matrix rows and Vector size are not the same");
+        auto nmat = MatrixXd((*(*a)).rows(), (*(*a)).cols());
+        for(int c = 0; c < (*(*a)).cols(); c++){
+            nmat.col(c) = (*(*a)).col(c) - (*(*v));
+        }
+        MatVec::alloc_matrix(L, nmat);
+    }else if(MatVec::isvector(L, MatVec::rowvec_metatablename, 2)){
+        RowVectorXd** v = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename, 2);
+        if((*(*a)).cols() != (*(*v)).size())
+            return luaL_error(L, "Matrix columns and Vector size are not the same");
+        auto nmat = MatrixXd((*(*a)).rows(), (*(*a)).cols());
+        for(int r = 0; r < (*(*a)).rows(); r++){
+            nmat.row(r) = (*(*a)).row(r) - (*(*v));
+        }
+        MatVec::alloc_matrix(L, nmat);
+    }else{
+        MatrixXd** b = MatVec::check_matrix(L, 2);
 
+        if((*(*a)).size() != (*(*b)).size())
+            return luaL_error(L, "Matrices sizes are not the same");
+
+        MatVec::alloc_matrix(L, (*(*a)) - (*(*b)));
+    }
     return 1;
 }
 
@@ -352,10 +475,14 @@ int Matrix::mul_matrix(lua_State* L){
 int Matrix::eq_matrix(lua_State* L){
     MatrixXd** a = MatVec::check_matrix(L);
     MatrixXd** b = MatVec::check_matrix(L, 2);
-    if(lua_checkstack(L, 1)){
-        lua_pushboolean(L, (*(*a)) == (*(*b)));
+    if((*(*a)).rows() == (*(*b)).rows() && (*(*a)).cols() == (*(*b)).cols()){
+        if(lua_checkstack(L, 1)){
+            lua_pushboolean(L, (*(*a)) == (*(*b)));
+        }else{
+            return luaL_error(L, MatVec::nospacestack);
+        }
     }else{
-        return luaL_error(L, MatVec::nospacestack);
+        return luaL_error(L, "Matrices Dimensions are not the same");
     }
     return 1;
 }
