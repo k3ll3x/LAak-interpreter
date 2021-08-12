@@ -257,6 +257,20 @@ int Matrix::rows_matrix(lua_State* L){
     return 1;
 }
 
+int Matrix::cos_matrix(lua_State* L){
+    MatrixXd** m = (MatrixXd**)MatVec::check_matrix(L);
+    MatrixXd nm = (*(*m)).array().cos();
+    MatVec::alloc_matrix(L, nm);
+    return 1;
+}
+
+int Matrix::sin_matrix(lua_State* L){
+    MatrixXd** m = (MatrixXd**)MatVec::check_matrix(L);
+    MatrixXd nm = (*(*m)).array().sin();
+    MatVec::alloc_matrix(L, nm);
+    return 1;
+}
+
 int Matrix::T_matrix(lua_State* L){
     MatrixXd** m = MatVec::check_matrix(L);
     MatVec::alloc_matrix(L, (*(*m)).transpose());

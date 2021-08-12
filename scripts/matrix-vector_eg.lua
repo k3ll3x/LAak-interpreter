@@ -43,6 +43,17 @@ ut = u:t()
 v_type = v:type()
 v_size = v:size()
 
+-- get vector segment
+vv = vector.random(6)
+index = 2
+seg_size = 3
+print(vv:segment(index, seg_size))
+
+--set vector segment
+seg_v = vec(seg_size)
+seg_v = seg_v * math.random()
+vv:segment(index, seg_size, seg_v)
+
 -- Arithmetic
 v = v + w - u * 3
 v = -v
@@ -179,3 +190,4 @@ print(C:maxCoeff())
 print(C:max())
 
 print(C:trace())
+

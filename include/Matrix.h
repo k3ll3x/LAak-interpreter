@@ -23,6 +23,8 @@ private:
     static int add_matrix(lua_State* L);
     static int sub_matrix(lua_State* L);
     static int mul_matrix(lua_State* L);
+    static int cos_matrix(lua_State* L);
+    static int sin_matrix(lua_State* L);
     static int T_matrix(lua_State* L);
     static int Td_matrix(lua_State* L);
     static int inverse_matrix(lua_State* L);
@@ -52,6 +54,8 @@ private:
         { "size", get_matsize },
         { "cols", cols_matrix },
         { "rows", rows_matrix },
+        { "cos", cos_matrix },
+        { "sin", sin_matrix },
         { "transpose", T_matrix },
         { "t", T_matrix },
         { "T", T_matrix },

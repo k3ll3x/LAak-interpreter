@@ -8,12 +8,14 @@ public:
 private:
     static double* get_element(lua_State* L, const char* name = MatVec::vec_metatablename);
     static int new_vector(lua_State* L);
-    static int norm_vector(lua_State* l);
-    static int normc_vector(lua_State* l);
-    static int mag_vector(lua_State* l);
-    static int dot_vectors(lua_State* l);
-    static int cross_vectors(lua_State* l);
-    static int T_vector(lua_State* l);
+    static int norm_vector(lua_State* L);
+    static int normc_vector(lua_State* L);
+    static int mag_vector(lua_State* L);
+    static int dot_vectors(lua_State* L);
+    static int cross_vectors(lua_State* L);
+    static int T_vector(lua_State* L);
+    static int cos_vector(lua_State* L);
+    static int sin_vector(lua_State* L);
     static int linspace_vector(lua_State* L);
     static int rand_vector(lua_State* L);
     static int sum_vector(lua_State* L);
@@ -27,6 +29,8 @@ private:
     static int free_vector(lua_State* L);
     static int get_vecelem(lua_State* L);
     static int set_vecelem(lua_State* L);
+    static int segment_vector(lua_State* L);
+    // static int seq_vector(lua_State* L);
     static int add_vectors(lua_State* L);
     static int sub_vectors(lua_State* L);
     static int mul_vector(lua_State* L);
@@ -40,6 +44,8 @@ private:
         // { "__index", get_vecelem },
         { "k", get_vecelem },
         { "__newindex", set_vecelem },
+        { "segment", segment_vector },
+        // { "seq", seq_vector },
         { "normalize", norm_vector },
         { "n", norm_vector },
         { "normalized", normc_vector },
@@ -51,6 +57,8 @@ private:
         { "transpose", T_vector },
         { "t", T_vector },
         { "T", T_vector },
+        { "cos", cos_vector },
+        { "sin", sin_vector },
         { "sum", sum_vector },
         { "prod", prod_vector },
         { "mean", mean_vector },

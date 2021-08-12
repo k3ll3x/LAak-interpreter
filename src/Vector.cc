@@ -27,12 +27,12 @@ void Vector::register_vector(lua_State* L){
 double* Vector::get_element(lua_State* L, const char* name){
     if(strcmp(name, MatVec::vec_metatablename) == 0){
         VectorXd** v = (VectorXd**)MatVec::check_vector(L);
-        int index = luaL_checkinteger(L, 2);
+        unsigned int index = luaL_checkinteger(L, 2);
         luaL_argcheck(L, 0 <= index && index < (*(*v)).size(), 2, MatVec::index_out_range);
         return &(*(*v))[index];
     }else{
         RowVectorXd** v = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename);
-        int index = luaL_checkinteger(L, 2);
+        unsigned int index = luaL_checkinteger(L, 2);
         luaL_argcheck(L, 0 <= index && index < (*(*v)).size(), 2, MatVec::index_out_range);
         return &(*(*v))[index];
     }
@@ -78,7 +78,7 @@ int Vector::new_vector(lua_State* L){
         if(n == 1){
             //create vector with argument as size
             if(lua_isnumber(L,1)){
-                int size = luaL_checkinteger(L, 1);
+                unsigned int size = luaL_checkinteger(L, 1);
                 *v = new VectorXd(size);
                 if(*v == nullptr)
                     return luaL_error(L, MatVec::nomemory);
@@ -94,7 +94,7 @@ int Vector::new_vector(lua_State* L){
                 }else{
                     return luaL_error(L, MatVec::nospacestack);
                 }
-                int idx = 0;
+                unsigned int idx = 0;
                 while (lua_next(L, 1) != 0) {
                     if(idx >= size)
                         return luaL_error(L, MatVec::index_out_range);
@@ -148,6 +148,53 @@ int Vector::rand_vector(lua_State* L){
     }
     return 1;
 }
+
+int Vector::segment_vector(lua_State* L){
+    int n = lua_gettop(L);
+    unsigned int i = luaL_checkinteger(L, 2);
+    unsigned int size = luaL_checkinteger(L, 3);
+    if(n > 3){//set segment to vector
+        if(MatVec::isvector(L)){
+            VectorXd** v = (VectorXd**)MatVec::check_vector(L);
+            VectorXd** seg = (VectorXd**)MatVec::check_vector(L, MatVec::vec_metatablename, 4);
+            if(size <= (*(*v)).size()-i && i >= 0 && i < (*(*v)).size()-1 && size == (*(*seg)).size()){
+                (*(*v)).segment(i, size) = (*(*seg));
+            }else{
+                return luaL_error(L, "Vectors sizes are not the same, or index and size are out of range");
+            }
+        }else{
+            RowVectorXd** v = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename, 1);
+            RowVectorXd** seg = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename, 4);
+            if(size <= (*(*v)).size()-i && i >= 0 && i < (*(*v)).size()-1 && size == (*(*seg)).size()){
+                (*(*v)).segment(i, size) = (*(*seg));
+            }else{
+                return luaL_error(L, "Vectors sizes are not the same, or index and size are out of range");
+            }
+        }
+        return 0;
+    }else{//get segment to vector
+        if(MatVec::isvector(L)){
+            VectorXd** v = (VectorXd**)MatVec::check_vector(L);
+            if(size <= (*(*v)).size()-i && i >= 0 && i < (*(*v)).size()-1){
+                VectorXd nv = (*(*v)).segment(i, size);
+                MatVec::alloc_vector(L, &nv);
+            }else{
+                return luaL_error(L, "Index or size out of range");
+            }
+        }else{
+            RowVectorXd** v = (RowVectorXd**)MatVec::check_vector(L);
+            if(size <= (*(*v)).size()-i && i >= 0 && i < (*(*v)).size()-1){
+                RowVectorXd nv = (*(*v)).segment(i, size);
+                MatVec::alloc_vector(L, &nv, MatVec::rowvec_metatablename);
+            }else{
+                return luaL_error(L, "Index or size out of range");
+            }
+        }
+    }
+    return 1;
+}
+
+// int seq_vector(lua_State* L);
 
 //need to remove reference -> Address boundary error
 int Vector::free_vector(lua_State* L){
@@ -401,6 +448,32 @@ int Vector::T_vector(lua_State* L){
         RowVectorXd** a = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename);
         auto r = VectorXd((*(*a)).transpose());
         MatVec::alloc_vector(L, &r);
+    }
+    return 1;
+}
+
+int Vector::cos_vector(lua_State* L){
+    if(MatVec::isvector(L)){
+        VectorXd** v = (VectorXd**)MatVec::check_vector(L);
+        VectorXd nv = (*(*v)).array().cos();
+        MatVec::alloc_vector(L, &nv);
+    }else{
+        RowVectorXd** v = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename);
+        RowVectorXd nv = (*(*v)).array().cos();
+        MatVec::alloc_vector(L, &nv, MatVec::rowvec_metatablename);
+    }
+    return 1;
+}
+
+int Vector::sin_vector(lua_State* L){
+    if(MatVec::isvector(L)){
+        VectorXd** v = (VectorXd**)MatVec::check_vector(L);
+        VectorXd nv = (*(*v)).array().sin();
+        MatVec::alloc_vector(L, &nv);
+    }else{
+        RowVectorXd** v = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename);
+        RowVectorXd nv = (*(*v)).array().sin();
+        MatVec::alloc_vector(L, &nv, MatVec::rowvec_metatablename);
     }
     return 1;
 }
