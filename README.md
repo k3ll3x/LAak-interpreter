@@ -244,14 +244,14 @@ print(C:trace())
 
 ## To-Do
 
-#### Garbage Collection and Memory allocation
+- Integrate [libigl](https://libigl.github.io/) great to work with Eigen and ImGui
 - Create a list of of allocated objects for further usage and disposal
-- Up and Down arrow keys to reuse entered entries in the interpreter (Inside TETRA SAND engine)
 - Utility for applying function to vector or matrix (Eigen: unaryExpr())
 - Utility for saving images in [Netpbm](https://en.wikipedia.org/wiki/Netpbm)
 - Loading Audio and Images and get Vector and Matrix for data manipulation
 
 #### Integrate the following libraries
+- libigl
 - RtAudio
 - RtMidi
 - OpenGL

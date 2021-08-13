@@ -22,4 +22,19 @@ public:
     ~WindowMgr() = delete;
     static void register_window(lua_State* L);
 private:
+    inline static const char* win_metatablename = "window";
+
+    static void register_methods(lua_State* L, luaL_Reg const* methods);
+
+    //methods
+
+    //functions
+    
+    inline static const luaL_Reg window_methods[] = {
+        { nullptr, nullptr }
+    };
+
+    inline static const luaL_Reg window_functions[] = {
+        { nullptr, nullptr }
+    };
 };
