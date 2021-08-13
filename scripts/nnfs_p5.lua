@@ -36,8 +36,12 @@ function create_data(n_points, n_classes)
 		local idx = n_points * class_num
 		local _size = (n_points * (class_num+1)) - idx
 		local nmat = mat(n_points, 2)
-		X:segment(idx, _size, )
+		nmat:col(0, r*(2.5 * t:sin()))
+		nmat:col(1, r*(2.5 * t:cos()))
+		--X:segment(idx, _size, )
+		Y:segment(idx, _size, class_num)
 	end
+	return {X, Y}
 end
 
 ----------------------
@@ -71,6 +75,7 @@ layer1:forward(X)
 print(layer1.out)
 layer2:forward(layer1.out)
 print(layer2.out)
+
 
 
 

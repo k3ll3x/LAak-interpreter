@@ -1,6 +1,6 @@
-#include "LuaHandler.h"
+#include "LAakHandler.h"
 
-void LuaHandler::register_mtables(lua_State* L){
+void LAakHandler::register_mtables(lua_State* L){
     //custom print to redirect output and other utils
     LuaUtilLib::register_luautillib(L);
 
@@ -11,17 +11,17 @@ void LuaHandler::register_mtables(lua_State* L){
     WindowMgr::register_window(L);
 }
 
-LuaHandler::LuaHandler(){
+LAakHandler::LAakHandler(){
     L = luaL_newstate();
     luaL_openlibs(L);
     register_mtables(L);
 }
 
-LuaHandler::~LuaHandler(){
+LAakHandler::~LAakHandler(){
     lua_close(L);
 }
 
-bool LuaHandler::check_lua(int r){
+bool LAakHandler::check_lua(int r){
     if(r != LUA_OK){
         errmsg = lua_tostring(L, -1);
         return false;
@@ -32,7 +32,7 @@ bool LuaHandler::check_lua(int r){
     return true;
 }
 
-bool LuaHandler::do_string(std::string input){
+bool LAakHandler::do_string(std::string input){
     int r = luaL_dostring(L, input.c_str());
-    return LuaHandler::check_lua(r);
+    return LAakHandler::check_lua(r);
 }

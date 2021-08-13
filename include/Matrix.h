@@ -14,6 +14,7 @@ private:
     // static int doc_matrix(lua_State* L);
 
     static int new_matrix(lua_State* L);
+    static int rand_matrix(lua_State* L);
     static int ij_matrix(lua_State* L);
     static int row_matrix(lua_State* L);
     static int col_matrix(lua_State* L);
@@ -89,6 +90,8 @@ private:
     inline static const luaL_Reg matrix_functions[] = {
         // { "doc", doc_matrix },
         { "new", new_matrix },
+        { "rand", rand_matrix },
+        { "random", rand_matrix },
         { "__gc", free_matrix },
         { "__add", add_matrix },
         { "__sub", sub_matrix },

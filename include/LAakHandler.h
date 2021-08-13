@@ -22,15 +22,15 @@ extern "C" {
 
 #include "WindowMgr.h"
 
-class LuaHandler {
+class LAakHandler {
 private:
     lua_State* L;
     bool check_lua(int r);
     void register_mtables(lua_State* L);
 
 public:
-    LuaHandler();
-    ~LuaHandler();
+    LAakHandler();
+    ~LAakHandler();
     bool do_string(std::string input);
     std::string errmsg;
     std::string out;

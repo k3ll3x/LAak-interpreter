@@ -105,6 +105,13 @@ int Matrix::new_matrix(lua_State* L){
     return 1;
 }
 
+int Matrix::rand_matrix(lua_State* L){
+    int r = luaL_checkinteger(L, 1);
+    int c = luaL_checkinteger(L, 2);
+    MatVec::alloc_matrix(L, MatrixXd::Random(r, c));
+    return 1;
+}
+
 //need to remove reference -> Address boundary error
 int Matrix::free_matrix(lua_State* L){
     MatrixXd** m = MatVec::check_matrix(L);

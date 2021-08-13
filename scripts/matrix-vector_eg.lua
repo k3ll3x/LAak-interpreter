@@ -95,10 +95,12 @@ C = mat(4,4,math.random())
 
 -- 3x2 Matrix with random values
 D = mat(3,2,"rand")
+E = matrix.random(3,3)
+E = matrix.rand(3,3)
 
 -- Create Matrix with table of table
 
-E = mat(
+F = mat(
 	{
 		{1,2,3,4},
 		{5,6,7,8}
@@ -190,4 +192,5 @@ print(C:maxCoeff())
 print(C:max())
 
 print(C:trace())
+
 
