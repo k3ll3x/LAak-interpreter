@@ -45,8 +45,6 @@ private:
     static int eq_matrix(lua_State* L);
     static int matrix_tostring(lua_State* L);
 
-    static void register_methods(lua_State* L, luaL_Reg const* methods);
-
     inline static const luaL_Reg matrix_methods[] = {
         { "ij", ij_matrix },
         { "rc", ij_matrix },

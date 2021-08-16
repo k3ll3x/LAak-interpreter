@@ -1,39 +1,23 @@
 #include "Vector.h"
 
-void Vector::register_methods(lua_State* L, luaL_Reg const* methods){
-    lua_pushstring(L, "__index");
-    lua_pushvalue(L, -2);
-    lua_settable(L, -3);
-    for(int i = 0; (methods+i)->name != nullptr; ++i){
-        lua_pushcfunction(L, (methods+i)->func);
-        lua_setfield(L, -2, (methods+i)->name);
-    }
-}
-
 void Vector::register_vector(lua_State* L){
     //Column Vectors
-    luaL_newmetatable(L, MatVec::vec_metatablename);
-    register_methods(L, vector_methods);
-    luaL_setfuncs(L, vector_functions, 0);
-    lua_setglobal(L, MatVec::vec_metatablename);
-
+    LAakTable::register_table(L, MatVec::vec_metatablename, vector_methods, vector_functions);
+    
     //Row Vectors
-    luaL_newmetatable(L, MatVec::rowvec_metatablename);
-    register_methods(L, vector_methods);
-    luaL_setfuncs(L, vector_functions, 0);
-    lua_setglobal(L, MatVec::rowvec_metatablename);
+    LAakTable::register_table(L, MatVec::rowvec_metatablename, vector_methods, vector_functions);
 }
 
 double* Vector::get_element(lua_State* L, const char* name){
     if(strcmp(name, MatVec::vec_metatablename) == 0){
         VectorXd** v = (VectorXd**)MatVec::check_vector(L);
         unsigned int index = luaL_checkinteger(L, 2);
-        luaL_argcheck(L, 0 <= index && index < (*(*v)).size(), 2, MatVec::index_out_range);
+        luaL_argcheck(L, 0 <= index && index < (*(*v)).size(), 2, LAakTable::index_out_range);
         return &(*(*v))[index];
     }else{
         RowVectorXd** v = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename);
         unsigned int index = luaL_checkinteger(L, 2);
-        luaL_argcheck(L, 0 <= index && index < (*(*v)).size(), 2, MatVec::index_out_range);
+        luaL_argcheck(L, 0 <= index && index < (*(*v)).size(), 2, LAakTable::index_out_range);
         return &(*(*v))[index];
     }
     return nullptr;
@@ -44,13 +28,13 @@ int Vector::get_vecelem(lua_State* L){
         if(lua_checkstack(L, 1)){
             lua_pushnumber(L, *get_element(L));
         }else{
-            return luaL_error(L, MatVec::nospacestack);
+            return luaL_error(L, LAakTable::nospacestack);
         }
     }else{
         if(lua_checkstack(L, 1)){
             lua_pushnumber(L, *get_element(L, MatVec::rowvec_metatablename));
         }else{
-            return luaL_error(L, MatVec::nospacestack);
+            return luaL_error(L, LAakTable::nospacestack);
         }
     }
     return 1;
@@ -73,7 +57,7 @@ int Vector::new_vector(lua_State* L){
         if(lua_checkstack(L, 1)){
             v = (VectorXd**)lua_newuserdata(L, sizeof(VectorXd*));
         }else{
-            return luaL_error(L, MatVec::nospacestack);
+            return luaL_error(L, LAakTable::nospacestack);
         }
         if(n == 1){
             //create vector with argument as size
@@ -81,23 +65,23 @@ int Vector::new_vector(lua_State* L){
                 unsigned int size = luaL_checkinteger(L, 1);
                 *v = new VectorXd(size);
                 if(*v == nullptr)
-                    return luaL_error(L, MatVec::nomemory);
+                    return luaL_error(L, LAakTable::nomemory);
                 (*(*v)).fill(0);
             //create vector with contents of table
             }else if(lua_istable(L,1)){
                 unsigned int size = lua_rawlen(L, 1);
                 *v = new VectorXd(size);
                 if(*v == nullptr)
-                    return luaL_error(L, MatVec::nomemory);
+                    return luaL_error(L, LAakTable::nomemory);
                 if(lua_checkstack(L, 1)){
                     lua_pushnil(L);
                 }else{
-                    return luaL_error(L, MatVec::nospacestack);
+                    return luaL_error(L, LAakTable::nospacestack);
                 }
                 unsigned int idx = 0;
                 while (lua_next(L, 1) != 0) {
                     if(idx >= size)
-                        return luaL_error(L, MatVec::index_out_range);
+                        return luaL_error(L, LAakTable::index_out_range);
                     (*(*v))[idx] = luaL_checknumber(L, -1);
                     idx++;
                     lua_pop(L, 1);
@@ -110,7 +94,7 @@ int Vector::new_vector(lua_State* L){
             //create vector with multiple arguments
             *v = new VectorXd(n);
             if(*v == nullptr)
-                return luaL_error(L, MatVec::nomemory);
+                return luaL_error(L, LAakTable::nomemory);
             for(int i = 1; i <= n; i++){
                 (*(*v))[i-1] = luaL_checknumber(L, i);
             }
@@ -304,7 +288,7 @@ int Vector::mul_vector(lua_State* L){
         if(lua_checkstack(L, 1)){
             lua_pushnumber(L, res);
         }else{
-            return luaL_error(L, MatVec::nospacestack);
+            return luaL_error(L, LAakTable::nospacestack);
         }
         return 1;
     }else{
@@ -350,14 +334,14 @@ int Vector::mag_vector(lua_State* L){
         if(lua_checkstack(L, 1)){
             lua_pushnumber(L, (*(*v)).norm());
         }else{
-            return luaL_error(L, MatVec::nospacestack);
+            return luaL_error(L, LAakTable::nospacestack);
         }
     }else{
         RowVectorXd** v = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename);
         if(lua_checkstack(L, 1)){
             lua_pushnumber(L, (*(*v)).norm());
         }else{
-            return luaL_error(L, MatVec::nospacestack);
+            return luaL_error(L, LAakTable::nospacestack);
         }
     }
     return 1;
@@ -374,7 +358,7 @@ int Vector::dot_vectors(lua_State* L){
             if(lua_checkstack(L, 1)){
                 lua_pushnumber(L, d);
             }else{
-                return luaL_error(L, MatVec::nospacestack);
+                return luaL_error(L, LAakTable::nospacestack);
             }
         }else{
             RowVectorXd** b = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename, 2);
@@ -384,7 +368,7 @@ int Vector::dot_vectors(lua_State* L){
             if(lua_checkstack(L, 1)){
                 lua_pushnumber(L, d);
             }else{
-                return luaL_error(L, MatVec::nospacestack);
+                return luaL_error(L, LAakTable::nospacestack);
             }
         }
     }else{
@@ -397,7 +381,7 @@ int Vector::dot_vectors(lua_State* L){
             if(lua_checkstack(L, 1)){
                 lua_pushnumber(L, d);
             }else{
-                return luaL_error(L, MatVec::nospacestack);
+                return luaL_error(L, LAakTable::nospacestack);
             }
         }else{
             RowVectorXd** b = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename, 2);
@@ -407,7 +391,7 @@ int Vector::dot_vectors(lua_State* L){
             if(lua_checkstack(L, 1)){
                 lua_pushnumber(L, d);
             }else{
-                return luaL_error(L, MatVec::nospacestack);
+                return luaL_error(L, LAakTable::nospacestack);
             }
         }
     }
@@ -484,14 +468,14 @@ int Vector::sum_vector(lua_State* L){
         if(lua_checkstack(L, 1)){
             lua_pushnumber(L, (*(*a)).sum());
         }else{
-            return luaL_error(L, MatVec::nospacestack);
+            return luaL_error(L, LAakTable::nospacestack);
         }
     }else{
         RowVectorXd** a = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename);
         if(lua_checkstack(L, 1)){
             lua_pushnumber(L, (*(*a)).sum());
         }else{
-            return luaL_error(L, MatVec::nospacestack);
+            return luaL_error(L, LAakTable::nospacestack);
         }
     }
     return 1;
@@ -504,14 +488,14 @@ int Vector::prod_vector(lua_State* L){
         if(lua_checkstack(L, 1)){
             lua_pushnumber(L, (*(*a)).prod());
         }else{
-            return luaL_error(L, MatVec::nospacestack);
+            return luaL_error(L, LAakTable::nospacestack);
         }
     }else{
         RowVectorXd** a = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename);
         if(lua_checkstack(L, 1)){
             lua_pushnumber(L, (*(*a)).prod());
         }else{
-            return luaL_error(L, MatVec::nospacestack);
+            return luaL_error(L, LAakTable::nospacestack);
         }
     }
     return 1;
@@ -523,14 +507,14 @@ int Vector::mean_vector(lua_State* L){
         if(lua_checkstack(L, 1)){
             lua_pushnumber(L, (*(*a)).prod());
         }else{
-            return luaL_error(L, MatVec::nospacestack);
+            return luaL_error(L, LAakTable::nospacestack);
         }
     }else{
         RowVectorXd** a = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename);
         if(lua_checkstack(L, 1)){
             lua_pushnumber(L, (*(*a)).prod());
         }else{
-            return luaL_error(L, MatVec::nospacestack);
+            return luaL_error(L, LAakTable::nospacestack);
         }
     }
     return 1;
@@ -542,14 +526,14 @@ int Vector::mincoeff_vector(lua_State* L){
         if(lua_checkstack(L, 1)){
             lua_pushnumber(L, (*(*a)).minCoeff());
         }else{
-            return luaL_error(L, MatVec::nospacestack);
+            return luaL_error(L, LAakTable::nospacestack);
         }
     }else{
         RowVectorXd** a = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename);
         if(lua_checkstack(L, 1)){
             lua_pushnumber(L, (*(*a)).minCoeff());
         }else{
-            return luaL_error(L, MatVec::nospacestack);
+            return luaL_error(L, LAakTable::nospacestack);
         }
     }
     return 1;
@@ -561,14 +545,14 @@ int Vector::maxcoeff_vector(lua_State* L){
         if(lua_checkstack(L, 1)){
             lua_pushnumber(L, (*(*a)).maxCoeff());
         }else{
-            return luaL_error(L, MatVec::nospacestack);
+            return luaL_error(L, LAakTable::nospacestack);
         }
     }else{
         RowVectorXd** a = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename);
         if(lua_checkstack(L, 1)){
             lua_pushnumber(L, (*(*a)).maxCoeff());
         }else{
-            return luaL_error(L, MatVec::nospacestack);
+            return luaL_error(L, LAakTable::nospacestack);
         }
     }
     return 1;
@@ -580,14 +564,14 @@ int Vector::trace_vector(lua_State* L){
         if(lua_checkstack(L, 1)){
             lua_pushnumber(L, (*(*a)).trace());
         }else{
-            return luaL_error(L, MatVec::nospacestack);
+            return luaL_error(L, LAakTable::nospacestack);
         }
     }else{
         RowVectorXd** a = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename);
         if(lua_checkstack(L, 1)){
             lua_pushnumber(L, (*(*a)).trace());
         }else{
-            return luaL_error(L, MatVec::nospacestack);
+            return luaL_error(L, LAakTable::nospacestack);
         }
     }
     return 1;
@@ -598,13 +582,13 @@ int Vector::type_vector(lua_State* L){
         if(lua_checkstack(L, 1)){
             lua_pushstring(L, "column vector");
         }else{
-            return luaL_error(L, MatVec::nospacestack);
+            return luaL_error(L, LAakTable::nospacestack);
         }
     }else{
         if(lua_checkstack(L, 1)){
             lua_pushstring(L, "row vector");
         }else{
-            return luaL_error(L, MatVec::nospacestack);
+            return luaL_error(L, LAakTable::nospacestack);
         }
     }
     return 1;
@@ -616,14 +600,14 @@ int Vector::get_vecsize(lua_State* L){
         if(lua_checkstack(L, 1)){
             lua_pushinteger(L, (*(*v)).size());
         }else{
-            return luaL_error(L, MatVec::nospacestack);
+            return luaL_error(L, LAakTable::nospacestack);
         }
     }else{
         RowVectorXd** v = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename);
         if(lua_checkstack(L, 1)){
             lua_pushinteger(L, (*(*v)).size());
         }else{
-            return luaL_error(L, MatVec::nospacestack);
+            return luaL_error(L, LAakTable::nospacestack);
         }
     }
     return 1;
@@ -637,7 +621,7 @@ int Vector::eq_vectors(lua_State* L){
             if(lua_checkstack(L, 1)){
                 lua_pushboolean(L, (*(*a)) == (*(*b)));
             }else{
-                return luaL_error(L, MatVec::nospacestack);
+                return luaL_error(L, LAakTable::nospacestack);
             }
         }
     }else{
@@ -647,7 +631,7 @@ int Vector::eq_vectors(lua_State* L){
             if(lua_checkstack(L, 1)){
                 lua_pushboolean(L, (*(*a)) == (*(*b)));
             }else{
-                return luaL_error(L, MatVec::nospacestack);
+                return luaL_error(L, LAakTable::nospacestack);
             }
         }
     }
@@ -676,7 +660,7 @@ int Vector::vector_tostring(lua_State* L){
         if(lua_checkstack(L, 1)){
             lua_pushfstring(L, "[\n%s\n]", vstr.c_str());
         }else{
-            return luaL_error(L, MatVec::nospacestack);
+            return luaL_error(L, LAakTable::nospacestack);
         }
     }else{
         RowVectorXd** v = (RowVectorXd**)MatVec::check_vector(L, MatVec::rowvec_metatablename);
@@ -686,7 +670,7 @@ int Vector::vector_tostring(lua_State* L){
         if(lua_checkstack(L, 1)){
             lua_pushfstring(L, "[ %s ]", vstr.c_str());
         }else{
-            return luaL_error(L, MatVec::nospacestack);
+            return luaL_error(L, LAakTable::nospacestack);
         }
     }
     return 1;

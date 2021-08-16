@@ -4,10 +4,13 @@ void LAakHandler::register_mtables(lua_State* L){
     //custom print to redirect output and other utils
     LuaUtilLib::register_luautillib(L);
 
-    //register vector methods
+    //register matrix and vector metatable
     LA::register_la(L);
 
-    //register window methods
+    //register graphics metatable
+    Graphics::register_gl(L);
+
+    //register window metatable
     WindowMgr::register_window(L);
 }
 

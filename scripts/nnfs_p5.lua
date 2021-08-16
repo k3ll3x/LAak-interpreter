@@ -14,7 +14,7 @@ Layer_Dense.new = function(n_inputs, n_neurons)
 	o = {}
 	setmetatable(o, Layer_Dense)
 	Layer_Dense.__index = Layer_Dense
-	o.weights = mat(n_inputs, n_neurons, "rand")
+	o.weights = mat.random(n_inputs, n_neurons)
 	o.biases = vec(n_neurons):t()
 	return o
 end
@@ -75,6 +75,7 @@ layer1:forward(X)
 print(layer1.out)
 layer2:forward(layer1.out)
 print(layer2.out)
+
 
 
 

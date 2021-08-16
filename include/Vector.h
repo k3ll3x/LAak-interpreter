@@ -38,8 +38,6 @@ private:
     static int unm_vector(lua_State* L);
     static int vector_tostring(lua_State* L);
 
-    static void register_methods(lua_State* L, luaL_Reg const* methods);
-
     inline static const luaL_Reg vector_methods[] = {
         // { "__index", get_vecelem },
         { "k", get_vecelem },

@@ -1,11 +1,4 @@
-#ifndef LUA
-#define LUA
-extern "C" {
-    #include "lua.h"
-    #include "lualib.h"
-    #include "lauxlib.h"
-}
-#endif
+#include "LAakTable.h"
 
 #ifndef IOSTREAM
 #define IOSTREAM
@@ -33,9 +26,6 @@ namespace MatVec {
     inline static const char* mat_metatablename = "matrix";
     inline static const char* vec_metatablename = "vector";
     inline static const char* rowvec_metatablename = "rowvector";
-    inline static const char* nospacestack = "no space left in stack";
-    inline static const char* nomemory = "no memory left";
-    inline static const char* index_out_range = "index out of range";
 
     static MatrixXd** check_matrix(lua_State* L, int idx = 1){
         void* ud = luaL_checkudata(L, idx, mat_metatablename);
@@ -59,11 +49,11 @@ namespace MatVec {
             MatrixXd** m = (MatrixXd**)lua_newuserdata(L, sizeof(MatrixXd*));
             *m = new MatrixXd(mv);
             if(*m == nullptr)
-                return luaL_error(L, nomemory);
+                return luaL_error(L, LAakTable::nomemory);
             luaL_getmetatable(L, mat_metatablename);
             lua_setmetatable(L, -2);
         }else{
-            return luaL_error(L, nospacestack);
+            return luaL_error(L, LAakTable::nospacestack);
         }
         return true;
     }
@@ -91,22 +81,22 @@ namespace MatVec {
                 VectorXd** v = (VectorXd**)lua_newuserdata(L, sizeof(VectorXd*));
                 *v = new VectorXd(*((VectorXd*)vv));
                 if(*v == nullptr)
-                    return luaL_error(L, nomemory);
+                    return luaL_error(L, LAakTable::nomemory);
                 luaL_getmetatable(L, name);
                 lua_setmetatable(L, -2);
             }else{
-                return luaL_error(L, nospacestack);
+                return luaL_error(L, LAakTable::nospacestack);
             }
         }else{
             if(lua_checkstack(L, 1)){
                 RowVectorXd** v = (RowVectorXd**)lua_newuserdata(L, sizeof(RowVectorXd*));
                 *v = new RowVectorXd(*((RowVectorXd*)vv));
                 if(*v == nullptr)
-                    return luaL_error(L, nomemory);
+                    return luaL_error(L, LAakTable::nomemory);
                 luaL_getmetatable(L, name);
                 lua_setmetatable(L, -2);
             }else{
-                return luaL_error(L, nospacestack);
+                return luaL_error(L, LAakTable::nospacestack);
             }
         }
         return 1;

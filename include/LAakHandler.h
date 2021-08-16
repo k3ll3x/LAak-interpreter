@@ -20,13 +20,20 @@ extern "C" {
 #include "LA.h"
 #include "LuaUtilLib.h"
 
+#include "Graphics.h"
+
 #include "WindowMgr.h"
+
+struct Environment {
+    GLFWwindow* window;
+};
 
 class LAakHandler {
 private:
     lua_State* L;
     bool check_lua(int r);
     void register_mtables(lua_State* L);
+    Environment env;
 
 public:
     LAakHandler();
