@@ -26,12 +26,13 @@ public:
     inline static GLFWwindow* window;
 private:
     //main window width & height
-    int width, height;
+    inline static int width, height;
 
     inline static const char* win_metatablename = "window";
     inline static const char* win_create_err = "could not create window";
 
     static fw_window* check_fw_window(lua_State* L, int idx = 1);
+    static bool is_fw_window(lua_State* L, int idx = 1);
 
     //functions
     static int init(lua_State* L);
