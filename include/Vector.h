@@ -5,6 +5,7 @@ public:
     Vector() = delete;
     ~Vector() = delete;
     static void register_vector(lua_State* L);
+    inline static const char* metatable_name = MatVec::vec_metatablename;
 private:
     static double* get_element(lua_State* L, const char* name = MatVec::vec_metatablename);
     static int new_vector(lua_State* L);

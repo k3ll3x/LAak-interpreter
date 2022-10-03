@@ -39,6 +39,7 @@ public:
     LAakHandler();
     ~LAakHandler();
     bool do_string(std::string input);
+    bool do_string(char* input);
     std::string errmsg;
     std::string out;
 };

@@ -8,6 +8,15 @@ extern "C" {
 }
 #endif
 
+#ifndef STRING
+#include <string>
+#include <cstring>
+#endif
+
+#ifndef MAP
+#include <map>
+#endif
+
 #ifndef LAAKTBL
 #define LAAKTBL
 namespace LAakTable {
@@ -32,4 +41,39 @@ namespace LAakTable {
         lua_setglobal(L, metatablename);
     }
 }
+
+class Metatable {
+public:
+    Metatable() = delete;
+    ~Metatable() = delete;
+    std::string metatable_name;
+    void reg(lua_State* L){
+        LAakTable::register_table(L, metatable_name.c_str(), methods, functions);
+    }
+private:
+    static std::map<std::string, const std::string> docs;
+    const luaL_Reg* methods;
+    const luaL_Reg* functions;
+    int tostring(lua_State* L);
+    int free(lua_State* L);
+    int add(lua_State* L);
+    int sub(lua_State* L);
+    int mul(lua_State* L);
+    int eq(lua_State* L);
+    static int doc(lua_State* L){
+        std::string who = "doc";
+        if(lua_isstring(L, 1)){
+            who = luaL_checkstring(L, 1);
+        }
+        if(!docs.contains(who)){
+            return luaL_error(L, "No documentation available");
+        }
+        if(lua_checkstack(L, 1)){
+            lua_pushfstring(L, "%s", docs[who].c_str());
+        }else{
+            return luaL_error(L, LAakTable::nospacestack);
+        }
+        return 1;
+    }
+};
 #endif

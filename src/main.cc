@@ -1,4 +1,7 @@
 #include "LAakHandler.h"
+// libedit-dev
+#include <editline/readline.h>
+// #include <editline/history.h>
 
 int main(int argc, char** argv){
     auto laak_hndl = LAakHandler();
@@ -8,16 +11,22 @@ int main(int argc, char** argv){
             std::cout << laak_hndl.errmsg << '\n';
     }
 
-    std::string input;
     while(true){
-        getline(std::cin, input);
-        if(input == "quit")
+        /* Output our prompt and get input */        
+        char* input = readline("&> ");
+
+        if(input == nullptr || strcmp(input, "quit") == 0 || strcmp(input, "exit") == 0){
+            free(input);
             break;
-        if(!laak_hndl.do_string(input)){
+        }
+        if(!laak_hndl.do_string(std::string(input))){
             std::cout << laak_hndl.errmsg << '\n';
         }else{
             std::cout << laak_hndl.out;
         }
+        add_history(input);
+        if(input)
+            free(input);
     }
 
     return 0;

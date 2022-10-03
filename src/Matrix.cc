@@ -1,10 +1,26 @@
 #include "Matrix.h"
 
-void Matrix::register_matrix(lua_State* L){
-    LAakTable::register_table(L, MatVec::mat_metatablename, matrix_methods, matrix_functions);
+void Matrix::reg(lua_State* L){
+    LAakTable::register_table(L, MatVec::mat_metatablename, methods, functions);
 }
 
-int Matrix::new_matrix(lua_State* L){
+int Matrix::doc(lua_State* L){
+    std::string who = "doc";
+    if(lua_isstring(L, 1)){
+        who = luaL_checkstring(L, 1);
+    }
+    if(!docs.contains(who)){
+        return luaL_error(L, "No documentation available");
+    }
+    if(lua_checkstack(L, 1)){
+        lua_pushfstring(L, "%s", docs[who].c_str());
+    }else{
+        return luaL_error(L, LAakTable::nospacestack);
+    }
+    return 1;
+}
+
+int Matrix::_new(lua_State* L){
     int n = lua_gettop(L);
     MatrixXd** m;
     if(lua_checkstack(L, 1)){
@@ -90,7 +106,7 @@ int Matrix::new_matrix(lua_State* L){
     return 1;
 }
 
-int Matrix::rand_matrix(lua_State* L){
+int Matrix::rand(lua_State* L){
     int r = luaL_checkinteger(L, 1);
     int c = luaL_checkinteger(L, 2);
     MatVec::alloc_matrix(L, MatrixXd::Random(r, c));
@@ -98,7 +114,7 @@ int Matrix::rand_matrix(lua_State* L){
 }
 
 //need to remove reference -> Address boundary error
-int Matrix::free_matrix(lua_State* L){
+int Matrix::free(lua_State* L){
     MatrixXd** m = MatVec::check_matrix(L);
     // std::cout << *m << '\t' << "matrix freed" << '\n';
     delete *m;
@@ -106,7 +122,7 @@ int Matrix::free_matrix(lua_State* L){
     return 0;
 }
 
-int Matrix::ij_matrix(lua_State* L){
+int Matrix::ij(lua_State* L){
     int n = lua_gettop(L);
     MatrixXd** m = MatVec::check_matrix(L);
     int i = luaL_checkinteger(L, 2);
@@ -127,7 +143,7 @@ int Matrix::ij_matrix(lua_State* L){
     return 1;
 }
 
-int Matrix::row_matrix(lua_State* L){
+int Matrix::row(lua_State* L){
     int n = lua_gettop(L);
     MatrixXd** m = MatVec::check_matrix(L);
     int r = luaL_checkinteger(L, 2);
@@ -173,7 +189,7 @@ int Matrix::row_matrix(lua_State* L){
     return 1;
 }
 
-int Matrix::col_matrix(lua_State* L){
+int Matrix::col(lua_State* L){
     int n = lua_gettop(L);
     MatrixXd** m = MatVec::check_matrix(L);
     int c = luaL_checkinteger(L, 2);
@@ -229,7 +245,7 @@ int Matrix::get_matsize(lua_State* L){
     return 1;
 }
 
-int Matrix::cols_matrix(lua_State* L){
+int Matrix::cols(lua_State* L){
     MatrixXd** m = MatVec::check_matrix(L);
     if(lua_checkstack(L, 1)){
         lua_pushinteger(L, (*(*m)).cols());
@@ -239,7 +255,7 @@ int Matrix::cols_matrix(lua_State* L){
     return 1;
 }
 
-int Matrix::rows_matrix(lua_State* L){
+int Matrix::rows(lua_State* L){
     MatrixXd** m = MatVec::check_matrix(L);
     if(lua_checkstack(L, 1)){
         lua_pushinteger(L, (*(*m)).rows());
@@ -249,75 +265,75 @@ int Matrix::rows_matrix(lua_State* L){
     return 1;
 }
 
-int Matrix::cos_matrix(lua_State* L){
+int Matrix::cos(lua_State* L){
     MatrixXd** m = (MatrixXd**)MatVec::check_matrix(L);
     MatrixXd nm = (*(*m)).array().cos();
     MatVec::alloc_matrix(L, nm);
     return 1;
 }
 
-int Matrix::sin_matrix(lua_State* L){
+int Matrix::sin(lua_State* L){
     MatrixXd** m = (MatrixXd**)MatVec::check_matrix(L);
     MatrixXd nm = (*(*m)).array().sin();
     MatVec::alloc_matrix(L, nm);
     return 1;
 }
 
-int Matrix::T_matrix(lua_State* L){
+int Matrix::T(lua_State* L){
     MatrixXd** m = MatVec::check_matrix(L);
     MatVec::alloc_matrix(L, (*(*m)).transpose());
     return 1;
 }
 
-int Matrix::Td_matrix(lua_State* L){
+int Matrix::Td(lua_State* L){
     MatrixXd** m = MatVec::check_matrix(L);
     (*(*m)).transposeInPlace();
     return 1;
 }
 
-int Matrix::inverse_matrix(lua_State* L){
+int Matrix::inverse(lua_State* L){
     MatrixXd** m = MatVec::check_matrix(L);
     MatVec::alloc_matrix(L ,(*(*m)).inverse());
     return 1;
 }
 
-int Matrix::det_matrix(lua_State* L){
+int Matrix::det(lua_State* L){
     MatrixXd** m = MatVec::check_matrix(L);
     lua_pushnumber(L, (*(*m)).determinant());
     return 1;
 }
 
-int Matrix::conj_matrix(lua_State* L){
+int Matrix::conj(lua_State* L){
     MatrixXd** m = MatVec::check_matrix(L);
     MatVec::alloc_matrix(L, (*(*m)).conjugate());
     return 1;
 }
 
-int Matrix::adj_matrix(lua_State* L){
+int Matrix::adj(lua_State* L){
     MatrixXd** m = MatVec::check_matrix(L);
     MatVec::alloc_matrix(L, (*(*m)).adjoint());
     return 1;
 }
 
-int Matrix::adjd_matrix(lua_State* L){
+int Matrix::adjd(lua_State* L){
     MatrixXd** m = MatVec::check_matrix(L);
     (*(*m)).adjointInPlace();
     return 1;
 }
 
-int Matrix::trilow_matrix(lua_State* L){
+int Matrix::trilow(lua_State* L){
     MatrixXd** m = MatVec::check_matrix(L);
     MatVec::alloc_matrix(L, (*(*m)).triangularView<Eigen::Lower>());
     return 1;
 }
 
-int Matrix::triup_matrix(lua_State* L){
+int Matrix::triup(lua_State* L){
     MatrixXd** m = MatVec::check_matrix(L);
     MatVec::alloc_matrix(L, (*(*m)).triangularView<Eigen::Upper>());
     return 1;
 }
 
-int Matrix::sum_matrix(lua_State* L){
+int Matrix::sum(lua_State* L){
     MatrixXd** m = MatVec::check_matrix(L);
     if(lua_checkstack(L, 1)){
         lua_pushnumber(L, (*(*m)).sum());
@@ -327,7 +343,7 @@ int Matrix::sum_matrix(lua_State* L){
     return 1;
 }
 
-int Matrix::prod_matrix(lua_State* L){
+int Matrix::prod(lua_State* L){
     MatrixXd** m = MatVec::check_matrix(L);
     if(lua_checkstack(L, 1)){
         lua_pushnumber(L, (*(*m)).prod());
@@ -337,7 +353,7 @@ int Matrix::prod_matrix(lua_State* L){
     return 1;
 }
 
-int Matrix::mean_matrix(lua_State* L){
+int Matrix::mean(lua_State* L){
     MatrixXd** m = MatVec::check_matrix(L);
     if(lua_checkstack(L, 1)){
         lua_pushnumber(L, (*(*m)).mean());
@@ -347,7 +363,7 @@ int Matrix::mean_matrix(lua_State* L){
     return 1;
 }
 
-int Matrix::mincoeff_matrix(lua_State* L){
+int Matrix::mincoeff(lua_State* L){
     MatrixXd** m = MatVec::check_matrix(L);
     if(lua_checkstack(L, 1)){
         lua_pushnumber(L, (*(*m)).minCoeff());
@@ -357,7 +373,7 @@ int Matrix::mincoeff_matrix(lua_State* L){
     return 1;
 }
 
-int Matrix::maxcoeff_matrix(lua_State* L){
+int Matrix::maxcoeff(lua_State* L){
     MatrixXd** m = MatVec::check_matrix(L);
     if(lua_checkstack(L, 1)){
         lua_pushnumber(L, (*(*m)).maxCoeff());
@@ -367,7 +383,7 @@ int Matrix::maxcoeff_matrix(lua_State* L){
     return 1;
 }
 
-int Matrix::trace_matrix(lua_State* L){
+int Matrix::trace(lua_State* L){
     MatrixXd** m = MatVec::check_matrix(L);
     if(lua_checkstack(L, 1)){
         lua_pushnumber(L, (*(*m)).trace());
@@ -377,7 +393,7 @@ int Matrix::trace_matrix(lua_State* L){
     return 1;
 }
 
-int Matrix::add_matrix(lua_State* L){
+int Matrix::add(lua_State* L){
     MatrixXd** a = MatVec::check_matrix(L);
 
     if(MatVec::isvector(L, MatVec::vec_metatablename, 2)){
@@ -409,7 +425,7 @@ int Matrix::add_matrix(lua_State* L){
     return 1;
 }
 
-int Matrix::sub_matrix(lua_State* L){
+int Matrix::sub(lua_State* L){
     MatrixXd** a = MatVec::check_matrix(L);
 
     if(MatVec::isvector(L, MatVec::vec_metatablename, 2)){
@@ -441,7 +457,7 @@ int Matrix::sub_matrix(lua_State* L){
     return 1;
 }
 
-int Matrix::mul_matrix(lua_State* L){
+int Matrix::mul(lua_State* L){
     double s;
     MatrixXd** a;
     MatrixXd** b;
@@ -478,7 +494,7 @@ int Matrix::mul_matrix(lua_State* L){
     return 1;
 }
 
-int Matrix::eq_matrix(lua_State* L){
+int Matrix::eq(lua_State* L){
     MatrixXd** a = MatVec::check_matrix(L);
     MatrixXd** b = MatVec::check_matrix(L, 2);
     if((*(*a)).rows() == (*(*b)).rows() && (*(*a)).cols() == (*(*b)).cols()){
@@ -493,7 +509,7 @@ int Matrix::eq_matrix(lua_State* L){
     return 1;
 }
 
-int Matrix::matrix_tostring(lua_State* L){
+int Matrix::tostring(lua_State* L){
     MatrixXd** m = MatVec::check_matrix(L);
     std::ostringstream mosb;
     mosb << (*(*m));

@@ -39,3 +39,8 @@ bool LAakHandler::do_string(std::string input){
     int r = luaL_dostring(L, input.c_str());
     return LAakHandler::check_lua(r);
 }
+
+bool LAakHandler::do_string(char* input){
+    int r = luaL_dostring(L, input);
+    return LAakHandler::check_lua(r);
+}

@@ -20,6 +20,17 @@ extern "C" {
 namespace LuaUtilLib {
     static std::string out;
 
+    static int dumpstack(lua_State *L) {
+        int top=lua_gettop(L);
+        char* _out = new char();
+        for (int i=1; i <= top; i++) {
+            sprintf(_out, "%d:\n\t%s\n\t%p\n\t%s\n\n", i, luaL_typename(L,i), lua_topointer(L,i), lua_tostring(L, i));
+            out = _out;
+        }
+        delete _out;
+        return 1;
+    }
+
     static int r_print(lua_State* L){
         int n = lua_gettop(L);
         out = "";
@@ -52,6 +63,7 @@ namespace LuaUtilLib {
     static const luaL_Reg r_print_lib [] = {
         { "print", r_print },
         { "pgt", pgt },
+        { "dumpstack", dumpstack },
         { nullptr, nullptr }
     };
 
